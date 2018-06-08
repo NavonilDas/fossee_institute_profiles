@@ -1,0 +1,24 @@
+#clgName{
+    width:350px;
+    border-bottom: none;
+    left: 0px;
+}
+
+#suggest{
+    width: 350px;
+    position: absolute;
+    background: #fff;
+    z-index: 100;
+    overflow-x: auto;
+    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.5);
+    border-left: 1px solid #000;
+}
+
+#suggest a{
+    margin: 5px;
+    width:100%;
+}
+#suggest a:hover{
+    background: rgb(51,144,255);
+    color: #fff;
+}

@@ -44,22 +44,37 @@ function fossee_institute_profiles_form($form,&$formState){
 }
 
 function fossee_institute_profiles_display($val){
-    $out = '';
+    // drupal_add_css(drupal_get_path('module','')) fossee_profiles.css
+    // drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
     
+    $out = '<label id="cName">'.$val.'</label>';
+    $out .= 'Lab Migration Proposals';
+    
+    // $arr = array('Scilab','eSim','OpenModelica','Python',
+    // 'DWSIM','OpenFOAM','OR-Tools','selfworkshop');
+    db_set_active('Scilab');
+    // openmodelica,pythontbc,dwsim_2015
+    $query = db_query('SELECT * FROM scilab.lab_migration_proposal s,esim.lab_migration_proposal e WHERE (s.university LIKE :arg) AND  (e.university LIKE :arg)',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    dpm($rows);
+
+    $out .= 'Textbook Companion Proposals';
+    $out .= '<p>Workshops</p>';
+    
+    return $out;
 }
 
 function fossee_institute_profiles_page(){
     drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
+    drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
     
     if(isset($_GET['c'])){
-        return fossee_institute_profiles_display($_GET['c']);
+        return fossee_institute_profiles_display(str_replace('-',' ',$_GET['c']));
     }
-    
-    
-    
+        
     $tmp = '<b>Enter The College Name :</b><br>';
     $tmp .= '<input type="text" id="clgName" onkeyup="AddTOList(this)" keydown="clearSgst(event)">';
-
+    $tmp .= '<input type="submit" onclick="search()" value="Q"/>';
     db_set_active('Scilab');
     $query = db_query('SELECT DISTINCT university FROM lab_migration_proposal;');
     $rows = $query->fetchAll();
@@ -69,9 +84,6 @@ function fossee_institute_profiles_page(){
     $rows = $query->fetchAll();
     $tmp .= '<script> var sci_lab_text = '.json_encode($rows).'</script>';
 
-    
     $tmp .= '<div id="suggest"></div>';
-    $tmp .= '<div id="result"></div>';
-    // dpm($rows);
     return $tmp;
 }

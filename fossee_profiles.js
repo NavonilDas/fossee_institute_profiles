@@ -15,6 +15,7 @@
 })(jQuery);
 
 window.onload = ()=>{
+    if(document.getElementById('clgName'))
     document.getElementById('clgName').addEventListener("keyup", function(event) {
         if(event.which == 8){
             document.getElementById('suggest').innerHTML = "";
@@ -51,4 +52,8 @@ function Display(){
 
 function clearSgst(e){
     console.log(e.KeyCode);
+}
+
+function search(){
+    
 }
