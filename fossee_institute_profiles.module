@@ -1,0 +1,12 @@
+<?php
+
+function fossee_institute_profiles_menu(){
+    $menu = array();
+    $menu = array(
+        'title'=>'College Profiles',
+        'description'=>'College Profile',
+        'page callback'=>'fossee_institute_profiles_page',
+        'access callback'=>true
+    );
+    return $menu;
+}
