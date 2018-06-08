@@ -21,32 +21,32 @@ function fossee_institute_profiles_menu(){
 }
 
 function fossee_institute_profiles_form($form,&$formState){
-    db_set_active('default');
-    $fQuery = db_query('SELECT * FROM foss_type');
-    $foss_type = $fQuery->fetchAll();
-    dpm($foss_type);
-    $country = 'India';
+    // db_set_active('default');
+    // $fQuery = db_query('SELECT * FROM foss_type');
+    // $foss_type = $fQuery->fetchAll();
+    // dpm($foss_type);
+    // $country = 'India';
 
-    $form['states'] = array(
-        '#type' => 'select',
-        '#title' => t('State'),
-        '#options' => array(
-        ),
-        '#description' => t('Select a State'),
-    );
+    // $form['states'] = array(
+    //     '#type' => 'select',
+    //     '#title' => t('State'),
+    //     '#options' => array(
+    //     ),
+    //     '#description' => t('Select a State'),
+    // );
     
-    db_set_active('scilab');
-    $query = db_query('SELECT * FROM list_states_of_india');
-    $rows = $query->fetchAll();
-    for($i=0;$i<count($rows);$i++){
-        $form['states']['#options'][$i] = $rows[$i]->state;
-    }
+        $form['clgName'] = array(
+            '#title'=>'Enter the College Name',
+            '#description'=>'College Name',
+            '#type'=>'textfield'
+        );
+
     return $form;
 }
 
-function fossee_institute_profiles_page(){
-    $query = db_query("SELECT * FROM workshop");
-    $rows = $query->fetchAll();
-    dpm($rows);
-    return '<p>hmmm</p>';
-}
+// function fossee_institute_profiles_page(){
+//     $query = db_query("SELECT * FROM workshop");
+//     $rows = $query->fetchAll();
+//     dpm($rows);
+//     return '<p>hmmm</p>';
+// }
