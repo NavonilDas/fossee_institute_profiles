@@ -53,7 +53,7 @@ function fossee_institute_profiles_display($val){
     // $arr = array('Scilab','eSim','OpenModelica','Python',
     // 'DWSIM','OpenFOAM','OR-Tools','selfworkshop');
     db_set_active('Scilab');
-    // openmodelica,pythontbc,dwsim_2015
+    // openmodelica,pythontbc,dwsim_2015,scilab,esim,cfd_2015,or_fossee,django_spoken
     $query = db_query('SELECT * FROM scilab.lab_migration_proposal s,esim.lab_migration_proposal e WHERE (s.university LIKE :arg) AND  (e.university LIKE :arg)',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     dpm($rows);
