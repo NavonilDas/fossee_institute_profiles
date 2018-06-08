@@ -1,7 +1,7 @@
 <?php
 /*
  * foss_type
- * lab_migration_proposal
+ * lab_migration_proposal -> university
  * textbook_companion_proposal
  * workshop
  * selfworkshop,events_training,events_academiccenter,events_city,events_state
@@ -13,8 +13,8 @@ function fossee_institute_profiles_menu(){
     $menu['cProfiles'] = array(
         'title'=>'College Profiles',
         'description'=>'College Profile',
-        'page callback'=>'drupal_get_form',
-        'page arguments'=>array('fossee_institute_profiles_form'),
+        'page callback'=>'fossee_institute_profiles_page',
+        // 'page arguments'=>array('fossee_institute_profiles_form'),
         'access callback'=>true
     );
     return $menu;
@@ -37,16 +37,41 @@ function fossee_institute_profiles_form($form,&$formState){
     
         $form['clgName'] = array(
             '#title'=>'Enter the College Name',
-            '#description'=>'College Name',
             '#type'=>'textfield'
         );
 
     return $form;
 }
 
-// function fossee_institute_profiles_page(){
-//     $query = db_query("SELECT * FROM workshop");
-//     $rows = $query->fetchAll();
-//     dpm($rows);
-//     return '<p>hmmm</p>';
-// }
+function fossee_institute_profiles_display($val){
+    $out = '';
+    
+}
+
+function fossee_institute_profiles_page(){
+    drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
+    
+    if(isset($_GET['c'])){
+        return fossee_institute_profiles_display($_GET['c']);
+    }
+    
+    
+    
+    $tmp = '<b>Enter The College Name :</b><br>';
+    $tmp .= '<input type="text" id="clgName" onkeyup="AddTOList(this)" keydown="clearSgst(event)">';
+
+    db_set_active('Scilab');
+    $query = db_query('SELECT DISTINCT university FROM lab_migration_proposal;');
+    $rows = $query->fetchAll();
+    $tmp .= '<script> var sci_lab_m = '.json_encode($rows).'</script>';
+    
+    $query = db_query('SELECT DISTINCT university FROM textbook_companion_proposal;');
+    $rows = $query->fetchAll();
+    $tmp .= '<script> var sci_lab_text = '.json_encode($rows).'</script>';
+
+    
+    $tmp .= '<div id="suggest"></div>';
+    $tmp .= '<div id="result"></div>';
+    // dpm($rows);
+    return $tmp;
+}
