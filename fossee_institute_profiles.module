@@ -44,43 +44,58 @@ function fossee_institute_profiles_form($form,&$formState){
 }
 
 function fossee_institute_profiles_display($val){
-    // drupal_add_css(drupal_get_path('module','')) fossee_profiles.css
-    // drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-    
-    $out = '<label id="cName">'.$val.'</label>';
-    $out .= '<br>Lab Migration Proposals<br>';
-    
-    // $arr = array('Scilab','eSim','OpenModelica','Python',
-    // 'DWSIM','OpenFOAM','OR-Tools','selfworkshop');
-    db_set_active('Scilab');
+    $lab = ''; 
+    $state = '';
+    $country = '';
+    $city = '';
     // openmodelica,pythontbc,dwsim_2015,scilab,esim,cfd_2015,or_fossee,django_spoken
     $query = db_query('SELECT * FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
-    // dpm($rows);
     foreach($rows as $row){
-        $out .= '<a href="http://scilab.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
-        // $out .= '<a href="http://scilab.in/lab_migration_run/'+$row->id+'">'$row->lab_title+'</a><br>';
-    }
+        $lab .= '<a href="http://scilab.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        if($state == '' || $state == 'None')    $state = $row->state;
+        if($city == '' || $city == 'None')     $city = $row->city;
+        if($country == '' || $country == 'None')  $country = $row->country;    }
+
     $query = db_query('SELECT * FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        $lab .= '<a href="http://esim.fossee.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        if($state == '' || $state == 'None')    $state = $row->state;
+        if($city == '' || $city == 'None')     $city = $row->city;
+        if($country == '' || $country == 'None')  $country = $row->country;
     }
     $query = db_query('SELECT * FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $out .= $row->lab_title.'<br>';
+        $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        if($state == '' || $state == 'None')    $state = $row->state;
+        if($city == '' || $city == 'None')     $city = $row->city;
+        if($country == '' || $country == 'None')  $country = $row->country;
     }
     $query = db_query('SELECT * FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $out .= $row->lab_title.'<br>';
+        $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        if($state == '' || $state == 'None')    $state = $row->state;
+        if($city == '' || $city == 'None')     $city = $row->city;
+        if($country == '' || $country == 'None')  $country = $row->country;
     }
     $query = db_query('SELECT * FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $out .= $row->lab_title.'<br>';
-    }    
+        $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        if($state == '' || $state == 'None')    $state = $row->state;
+        if($city == '' || $city == 'None')     $city = $row->city;
+        if($country == '' || $country == 'None')  $country = $row->country;
+    }
+    
+    $out = '<label id="cName">'.$val.'</label>';
+    $out .= 'City : '.$city;
+    $out .= 'Country : '.$country;
+    $out .= 'State : '.$state;
+    $out .= '<br>Lab Migration Proposals<br>';
+    $out .= $lab;
     $out .= '<br>Textbook Companion Proposals';
     $out .= '<p>Workshops</p>';
     
