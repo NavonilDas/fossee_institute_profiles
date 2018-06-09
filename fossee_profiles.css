@@ -22,3 +22,12 @@
     background: rgb(51,144,255);
     color: #fff;
 }
+
+#cProfile{
+    padding:10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
+}
+
+#cProfile #cName{
+    
+}

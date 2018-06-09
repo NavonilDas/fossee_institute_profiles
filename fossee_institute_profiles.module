@@ -8,46 +8,55 @@
  *
  */
 // https://docs.google.com/document/d/1wZ4iLe92_w6UjKk_eC34A6x1X3NRC32ywiiYo0E6f04/edit?usp=sharing
+// function fossee_institute_permission(){
+//     return array(
+//         "print_workshop" => array(
+//             "title" => t("View Workshop"),
+//             "description" => t("Allows users to view workshop.")
+//         )
+//     );
+// }
 function fossee_institute_profiles_menu(){
     $menu = array();
     $menu['cProfiles'] = array(
         'title'=>'College Profiles',
         'description'=>'College Profile',
         'page callback'=>'fossee_institute_profiles_page',
-        // 'page arguments'=>array('fossee_institute_profiles_form'),
         'access callback'=>true
+    );
+    $menu['workshop/view'] = array(
+        "title" => "Workshop",
+        "page callback" => "fossee_institute_profiles_workshop",
+        "access arguments" => array(
+            "vieww"
+        ),
+        'access callback'=>true,
+        "type" => MENU_CALLBACK
     );
     return $menu;
 }
-
-function fossee_institute_profiles_form($form,&$formState){
-    // db_set_active('default');
-    // $fQuery = db_query('SELECT * FROM foss_type');
-    // $foss_type = $fQuery->fetchAll();
-    // dpm($foss_type);
-    // $country = 'India';
-
-    // $form['states'] = array(
-    //     '#type' => 'select',
-    //     '#title' => t('State'),
-    //     '#options' => array(
-    //     ),
-    //     '#description' => t('Select a State'),
-    // );
+function fossee_institute_profiles_workshop($wid = 0){
+    // $str = 'SELECT * FROM workshop WHERE w_id='.$wid;
+    // dpm($str);
+    $out = '';
+    $query = db_query('SELECT * FROM workshop WHERE w_id = :args',array(':args'=>$wid));
+    $rows = $query->fetchAll();
     
-        $form['clgName'] = array(
-            '#title'=>'Enter the College Name',
-            '#type'=>'textfield'
-        );
-
-    return $form;
+    return $out;
 }
-
 function fossee_institute_profiles_display($val){
     $lab = ''; 
     $state = '';
     $country = '';
     $city = '';
+    $work = '';
+
+    $query = db_query('SELECT * FROM workshop WHERE venue LIKE :args;',array(':args'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    $Fpage = drupal_get_normal_path(url());
+    foreach($rows as $row){
+        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$row->w_name.'</a><br>';
+    }
     // openmodelica,pythontbc,dwsim_2015,scilab,esim,cfd_2015,or_fossee,django_spoken
     $query = db_query('SELECT * FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
@@ -89,16 +98,17 @@ function fossee_institute_profiles_display($val){
         if($city == '' || $city == 'None')     $city = $row->city;
         if($country == '' || $country == 'None')  $country = $row->country;
     }
-    
-    $out = '<label id="cName">'.$val.'</label>';
+    $out .= '<div id="cProfile">';
+    $out .= '<label id="cName">'.$val.'</label>';
     $out .= 'City : '.$city;
     $out .= 'Country : '.$country;
     $out .= 'State : '.$state;
     $out .= '<br>Lab Migration Proposals<br>';
     $out .= $lab;
     $out .= '<br>Textbook Companion Proposals';
-    $out .= '<p>Workshops</p>';
-    
+    $out .= '<b>Workshops</b>';
+    $out .= $work;
+    $out .= '</div>';
     return $out;
 }
 
