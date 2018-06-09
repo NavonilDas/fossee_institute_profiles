@@ -38,3 +38,33 @@
 #cProfile label{
     font-size: 1.5em;
 }
+
+.wimg{
+    width:100px;
+    cursor: pointer;
+    margin:3px;
+}
+
+#VIewBox{
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    position: fixed;
+    top:0;
+    left:0;
+    width:100vw;
+    height: 100vh;
+    z-index:100;
+    overflow: auto;
+}
+
+#VIewBox img{
+    margin: auto;
+    width:100%;
+}
+#VIewBox label{
+    font-size: 2em;
+    position: absolute;
+    right: 50px;
+    top:50px;
+    color:red;
+}

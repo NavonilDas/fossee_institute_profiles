@@ -1,21 +1,13 @@
 <?php
-/*
- * foss_type
- * lab_migration_proposal -> university
- * textbook_companion_proposal
- * workshop
- * selfworkshop,events_training,events_academiccenter,events_city,events_state
- *
- */
 // https://docs.google.com/document/d/1wZ4iLe92_w6UjKk_eC34A6x1X3NRC32ywiiYo0E6f04/edit?usp=sharing
-// function fossee_institute_permission(){
-//     return array(
-//         "print_workshop" => array(
-//             "title" => t("View Workshop"),
-//             "description" => t("Allows users to view workshop.")
-//         )
-//     );
-// }
+function fossee_institute_permission(){
+    return array(
+        "view_workshop" => array(
+            "title" => t("View Workshop"),
+            "description" => t("Allows users to view workshop.")
+        )
+    );
+}
 function fossee_institute_profiles_menu(){
     $menu = array();
     $menu['cProfiles'] = array(
@@ -28,7 +20,7 @@ function fossee_institute_profiles_menu(){
         "title" => "Workshop",
         "page callback" => "fossee_institute_profiles_workshop",
         "access arguments" => array(
-            "vieww"
+            "view_workshop"
         ),
         'access callback'=>true,
         "type" => MENU_CALLBACK
@@ -36,12 +28,37 @@ function fossee_institute_profiles_menu(){
     return $menu;
 }
 function fossee_institute_profiles_workshop($wid = 0){
-    // $str = 'SELECT * FROM workshop WHERE w_id='.$wid;
-    // dpm($str);
-    $out = '';
     $query = db_query('SELECT * FROM workshop WHERE w_id = :args',array(':args'=>$wid));
     $rows = $query->fetchAll();
-    
+    $out = '<b>NO Data Find!</b>';
+    if(count($rows) > 0){
+        drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
+        drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+        
+        $out = '<table class="table table-bordered table-hover">';
+        $out .= '<tr><td><b>Name</b></td><td>'.$rows[0]->w_name.'</td></tr>';
+        $out .= '<tr><td><b>Start Date</b></td><td>'.$rows[0]->startdate.'</td></tr>';
+        $out .= '<tr><td><b>End Date</b></td><td>'.$rows[0]->enddate.'</td></tr>';
+        $out .= '<tr><td><b>No. of Participants</b></td><td>'.$rows[0]->no_of_participant.'</td></tr>';
+        $out .= '<tr><td><b>Venue</b></td><td>'.$rows[0]->venue.'</td></tr>';
+        if($rows[0]->event_link != '')
+            $out .= '<tr><td><b>Events Website</b></td><td>'.$rows[0]->event_link.'</td></tr>';    
+        $out .= '<tr><td><b>Details</b></td><td>'.$rows[0]->body.'</td></tr>';
+        $query = db_query('SELECT * FROM workshop_images WHERE w_id = :args',array(':args'=>$wid));
+        $rows = $query->fetchAll();
+        $rl = count($rows);
+        $Fpage = drupal_get_normal_path(url()); // Get the front url
+        if($rl > 0)     $out .= '<tr><td><b>Images</b></td><td>';
+        foreach($rows as $row){
+            if(strpos($row->path,'events_images') !== false)
+            $out .= '<img src="'.$Fpage.str_replace('/Site/fossee_drupal','',$row->path).'" alt="IMG"  class="wimg" onclick="viewImage(this)"/>';
+            else $out .= '<img src="'.$Fpage.'events_images/'.str_replace('/Site/fossee_drupal','',$row->path).'" alt="IMG" class="wimg" onclick="viewImage(this)"/>';
+        }    
+        if($rl > 0)
+            $out .= '</td></tr>';
+        $out .= '</table>';
+        if($rl > 0)$out .= '<div id="VIewBox"></div>';
+    }
     return $out;
 }
 
@@ -153,7 +170,7 @@ function fossee_institute_profiles_display($val){
         $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-    /*********************************** Display Data */
+    /*********************************** Display Data ******************/
     if(IS_EMPTY($state)) $state = "----";
     if(IS_EMPTY($city)) $city = "----";
     if(IS_EMPTY($country)) $country = "----";
