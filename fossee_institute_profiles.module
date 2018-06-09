@@ -44,13 +44,14 @@ function fossee_institute_profiles_workshop($wid = 0){
     
     return $out;
 }
-    // openmodelica,pythontbc,dwsim_2015,scilab,esim,cfd_2015,or_fossee,django_spoken
+
 function fossee_institute_profiles_display($val){
     $lab = '';  // Lab Migration Html
     $state = ''; // State of the colege
     $country = ''; // Country of the college
     $city = ''; // City of the college
     $work = ''; // Worshop html
+    $text = ''; // Text book html
     $i = 1; // Increnet variable
     $query = db_query('SELECT * FROM workshop WHERE venue LIKE :args;',array(':args'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
@@ -60,46 +61,99 @@ function fossee_institute_profiles_display($val){
         $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$i.' > '.$row->w_name.'</a><br>';
         $i++;
     }
+    // Lab Migration Proposal
+    $i = 1;
     $query = db_query('SELECT * FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="http://scilab.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        $lab .= '<a href="http://scilab.in/lab_migration_run/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         if(IS_EMPTY($state))    $state = $row->state;
         if(IS_EMPTY($city))     $city = $row->city;
-        if(IS_EMPTY($country))  $country = $row->country;    }
+        if(IS_EMPTY($country))  $country = $row->country;    
+        $i++;
+    }
 
     $query = db_query('SELECT * FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="http://esim.fossee.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        $lab .= '<a href="http://esim.fossee.in/lab_migration_run/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         if(IS_EMPTY($state))    $state = $row->state;
         if(IS_EMPTY($city))     $city = $row->city;
         if(IS_EMPTY($country))  $country = $row->country;
+        $i++;
     }
     $query = db_query('SELECT * FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        $lab .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         if(IS_EMPTY($state))    $state = $row->state;
         if(IS_EMPTY($city))     $city = $row->city;
         if(IS_EMPTY($country))  $country = $row->country;
+        $i++;
     }
     $query = db_query('SELECT * FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        $lab .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         if(IS_EMPTY($state))    $state = $row->state;
         if(IS_EMPTY($city))     $city = $row->city;
         if(IS_EMPTY($country))  $country = $row->country;
+        $i++;
     }
     $query = db_query('SELECT * FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
+        $lab .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         if(IS_EMPTY($state))    $state = $row->state;
         if(IS_EMPTY($city))     $city = $row->city;
         if(IS_EMPTY($country))  $country = $row->country;
+        $i++;
     }
+
+    /***************************** Text book********************* */
+    $i = 1;
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $i++;
+    }
+    
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM esim.textbook_companion_proposal po left join esim.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $i++;
+    }
+    
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM dwsim_2015.textbook_companion_proposal po left join dwsim_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $i++;
+    }
+    
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM openmodelica.textbook_companion_proposal po left join openmodelica.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $i++;
+    }
+
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM cfd_2015.textbook_companion_proposal po left join cfd_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $i++;
+    }
+
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM or_fossee.textbook_companion_proposal po left join or_fossee.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $i++;
+    }
+    /*********************************** Display Data */
     if(IS_EMPTY($state)) $state = "----";
     if(IS_EMPTY($city)) $city = "----";
     if(IS_EMPTY($country)) $country = "----";
@@ -110,12 +164,17 @@ function fossee_institute_profiles_display($val){
     $out .= '&nbsp;&nbsp;<b>State</b> : '.$state;
     $out .= '&nbsp;&nbsp;<b>City</b> : '.$city.' )';
     $out .= '<br><label>Lab Migration</label><br>';
-    $out .= $lab;
+    if($lab != '')
+        $out .= $lab;
+    else $out .= 'No Lab migration Done!<br>';
     $out .= '<label>Textbook Companion</label><br>';
+    if($text != '')
+        $out .= $text;
+    else $out .= "No Textbook Companion!<br>";
     $out .= '<label>Workshops</label><br>';
     if($work != '')
         $out .= $work;
-    else $out .= 'No Workshop Done';
+    else $out .= 'No Workshop Done!';
     $out .= '</div>';
     return $out;
 }

@@ -1,6 +1,9 @@
 #clgName{
     width:350px;
+    border:none;
+    border:1px solid #000;
     border-bottom: none;
+
     left: 0px;
 }
 
