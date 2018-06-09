@@ -44,72 +44,85 @@ function fossee_institute_profiles_workshop($wid = 0){
     
     return $out;
 }
+    // openmodelica,pythontbc,dwsim_2015,scilab,esim,cfd_2015,or_fossee,django_spoken
 function fossee_institute_profiles_display($val){
-    $lab = ''; 
-    $state = '';
-    $country = '';
-    $city = '';
-    $work = '';
-
+    $lab = '';  // Lab Migration Html
+    $state = ''; // State of the colege
+    $country = ''; // Country of the college
+    $city = ''; // City of the college
+    $work = ''; // Worshop html
+    $i = 1; // Increnet variable
     $query = db_query('SELECT * FROM workshop WHERE venue LIKE :args;',array(':args'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
-    $Fpage = drupal_get_normal_path(url());
+    $Fpage = drupal_get_normal_path(url()); // Get the front url
+
     foreach($rows as $row){
-        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$row->w_name.'</a><br>';
+        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$i.' > '.$row->w_name.'</a><br>';
+        $i++;
     }
-    // openmodelica,pythontbc,dwsim_2015,scilab,esim,cfd_2015,or_fossee,django_spoken
     $query = db_query('SELECT * FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="http://scilab.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
-        if($state == '' || $state == 'None')    $state = $row->state;
-        if($city == '' || $city == 'None')     $city = $row->city;
-        if($country == '' || $country == 'None')  $country = $row->country;    }
+        if(IS_EMPTY($state))    $state = $row->state;
+        if(IS_EMPTY($city))     $city = $row->city;
+        if(IS_EMPTY($country))  $country = $row->country;    }
 
     $query = db_query('SELECT * FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="http://esim.fossee.in/lab_migration_run/'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
-        if($state == '' || $state == 'None')    $state = $row->state;
-        if($city == '' || $city == 'None')     $city = $row->city;
-        if($country == '' || $country == 'None')  $country = $row->country;
+        if(IS_EMPTY($state))    $state = $row->state;
+        if(IS_EMPTY($city))     $city = $row->city;
+        if(IS_EMPTY($country))  $country = $row->country;
     }
     $query = db_query('SELECT * FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
-        if($state == '' || $state == 'None')    $state = $row->state;
-        if($city == '' || $city == 'None')     $city = $row->city;
-        if($country == '' || $country == 'None')  $country = $row->country;
+        if(IS_EMPTY($state))    $state = $row->state;
+        if(IS_EMPTY($city))     $city = $row->city;
+        if(IS_EMPTY($country))  $country = $row->country;
     }
     $query = db_query('SELECT * FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
-        if($state == '' || $state == 'None')    $state = $row->state;
-        if($city == '' || $city == 'None')     $city = $row->city;
-        if($country == '' || $country == 'None')  $country = $row->country;
+        if(IS_EMPTY($state))    $state = $row->state;
+        if(IS_EMPTY($city))     $city = $row->city;
+        if(IS_EMPTY($country))  $country = $row->country;
     }
     $query = db_query('SELECT * FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$row->id.'" target="_blank">'.$row->lab_title.'</a><br>';
-        if($state == '' || $state == 'None')    $state = $row->state;
-        if($city == '' || $city == 'None')     $city = $row->city;
-        if($country == '' || $country == 'None')  $country = $row->country;
+        if(IS_EMPTY($state))    $state = $row->state;
+        if(IS_EMPTY($city))     $city = $row->city;
+        if(IS_EMPTY($country))  $country = $row->country;
     }
+    if(IS_EMPTY($state)) $state = "----";
+    if(IS_EMPTY($city)) $city = "----";
+    if(IS_EMPTY($country)) $country = "----";
+
     $out .= '<div id="cProfile">';
-    $out .= '<label id="cName">'.$val.'</label>';
-    $out .= 'City : '.$city;
-    $out .= 'Country : '.$country;
-    $out .= 'State : '.$state;
-    $out .= '<br>Lab Migration Proposals<br>';
+    $out .= '<label id="cName">'.$val.'</label><br>';
+    $out .= '( <b>Country</b> : '.$country;
+    $out .= '&nbsp;&nbsp;<b>State</b> : '.$state;
+    $out .= '&nbsp;&nbsp;<b>City</b> : '.$city.' )';
+    $out .= '<br><label>Lab Migration</label><br>';
     $out .= $lab;
-    $out .= '<br>Textbook Companion Proposals';
-    $out .= '<b>Workshops</b>';
-    $out .= $work;
+    $out .= '<label>Textbook Companion</label><br>';
+    $out .= '<label>Workshops</label><br>';
+    if($work != '')
+        $out .= $work;
+    else $out .= 'No Workshop Done';
     $out .= '</div>';
     return $out;
+}
+
+// Check Wether it The string is empty , none or 0
+function IS_EMPTY($val){
+    return ($val === '' || $val === 'None' || $val === '0');
 }
 
 function fossee_institute_profiles_page(){

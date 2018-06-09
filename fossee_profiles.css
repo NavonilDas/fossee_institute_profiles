@@ -29,5 +29,9 @@
 }
 
 #cProfile #cName{
-    
+    font-size: 2em;
+}
+
+#cProfile label{
+    font-size: 1.5em;
 }
