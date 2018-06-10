@@ -41,7 +41,41 @@ function fossee_institute_profiles_menu(){
         "type" => MENU_CALLBACK,
         'access callback'=>true
     );
+    $menu["textbook"] = array(
+        "title" => "",
+        "page callback" => "fossee_get_data",
+        'page arguments' => array(
+            2
+        ),
+        "access arguments" => array(
+            "access college data"
+        ),
+        "type" => MENU_CALLBACK,
+        'access callback'=>true
+    );
+    $menu['clg/autocomplete'] = array(
+        'title' => 'Autocomplete for cities',
+        'page callback' => 'fossee_clg_autocomplete',
+        'access arguments' => array('use autocomplete'),  //or whatever permission makes sense
+        'type' => MENU_CALLBACK,
+        'access callback'=>true
+      );
     return $menu;
+}
+
+function fossee_clg_autocomplete($str){
+    $matches = array();
+    db_query("USE fossee_new");
+    $query = db_query('SELECT * FROM clg_names WHERE name LIKE :args;',array(
+        ':args'=>'%'.$str.'%'
+    ));
+    $rows = $query->fetchAll();
+    // // save the query to matches
+    foreach ($rows as $row) {
+      $matches[$row->name] = check_plain($row->name);
+    }
+    // Return the result to the form in json
+    return drupal_json_output($matches);
 }
 
 function fossee_get_data($id = 0,$type = ''){
@@ -85,9 +119,9 @@ function fossee_get_data($id = 0,$type = ''){
         $out .= '</table>';
         if($rows[0]->approval_status == 3){
             if($type == 'scilab')
-                $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Open Link</a>';
+                $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
             if($type == 'esim')
-                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Open Link</a>';                
+                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';                
         }
     }
     return $out;
@@ -283,20 +317,30 @@ function fossee_institute_profiles_page(){
     
     if(isset($_GET['c'])){
         return fossee_institute_profiles_display(str_replace('-',' ',$_GET['c']));
-    }
-        
-    $tmp = '<b>Enter The College Name :</b><br>';
-    $tmp .= '<input type="text" id="clgName" onkeyup="AddTOList(this)" keydown="clearSgst(event)">';
-    $tmp .= '<input type="submit" onclick="search()" value="Q"/>';
-    db_set_active('Scilab');
-    $query = db_query('SELECT DISTINCT university FROM lab_migration_proposal;');
-    $rows = $query->fetchAll();
-    $tmp .= '<script> var sci_lab_m = '.json_encode($rows).'</script>';
-    
-    $query = db_query('SELECT DISTINCT university FROM textbook_companion_proposal;');
-    $rows = $query->fetchAll();
-    $tmp .= '<script> var sci_lab_text = '.json_encode($rows).'</script>';
+    }else return drupal_get_form('fossee_profiles_form');
+}
 
-    $tmp .= '<div id="suggest"></div>';
-    return $tmp;
+function fossee_profiles_form($form,&$formState){
+    $form['clg'] = array(
+        '#type' => 'textfield',
+        '#title' => '',
+        '#maxlength' => 70,
+        '#prefix' => '<div class="container-inline">',
+        '#autocomplete_path' => 'clg/autocomplete'
+    );
+    $form['submit'] = array(
+        '#type'=>'button',
+        '#value'=>'Q',
+        '#suffix'=>'</div>',
+        '#ajax'=>array(
+            'callback'=>'fossee_search'
+        )
+    );
+    return $form;
+}
+
+function fossee_search($form,&$formState){
+    $clg = ($formState['values']['clg'] != '')?$formState['values']['clg']:'NODATAFOUNDINDATABASE';
+    $commands[] = ajax_command_invoke(NULL, 'search', array($clg));
+	return array('#type' => "ajax", '#commands' => $commands);
 }
