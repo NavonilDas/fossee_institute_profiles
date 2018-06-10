@@ -14,6 +14,14 @@ function fossee_institute_permission(){
             'title'=>t('View College Profile Data'),
             'description'=>t('Allow users to view textbook data')
         ),
+        "use autocomplete"=>array(
+            'title'=>t('Use Autocomplete'),
+            'description'=>t("Allow User to Use auto complete")
+        ),
+        'access selfworkshop data'=>array(
+            'title'=>t('View Self Workshop Data'),
+            'description'=>t('Allow User to View Self Workshop Data')
+        )
     );
 }
 function fossee_institute_profiles_menu(){
@@ -57,6 +65,15 @@ function fossee_institute_profiles_menu(){
         "type" => MENU_CALLBACK,
         'access callback'=>true
     );
+    $menu["self/workshop"] = array(
+        "title" => "",
+        "page callback" => "fossee_get_selfworkshop",
+        "access arguments" => array(
+            "access selfworkshop data"
+        ),
+        "type" => MENU_CALLBACK,
+        'access callback'=>true
+    );
     $menu['clg/autocomplete'] = array(
         'title' => 'Autocomplete for cities',
         'page callback' => 'fossee_clg_autocomplete',
@@ -67,10 +84,27 @@ function fossee_institute_profiles_menu(){
     return $menu;
 }
 
+function fossee_get_selfworkshop($id){
+    $out = '';
+    $query = db_query('SELECT t.training_code,ac.institution_name,ac.academic_code,ac.address,t.participant_count FROM django_spoken.events_training t, django_spoken.events_academiccenter ac, django_spoken.events_city c, django_spoken.events_state s WHERE t.academic_id=ac.id and t.id=:tid  and ac.city_id=c.id and c.state_id=s.id',array(':tid'=>$id));
+    $row = $query->fetchAll();
+    if(count($row) > 0){
+        $out .= '<b>Workshop Code : </b>'.$row[0]->training_code.'<br>'; 
+        $out .= '<b>Institution Name : </b>'.$row[0]->institution_name.'<br>';
+        $out .= '<b>Academic Code : </b>'.$row[0]->academic_code.'<br>';
+        $out .= '<b>Address : </b>'.$row[0]->address.'<br>';
+        $out .= '<b>No of Participants : </b>'.$row[0]->participant_count.'<br>';
+        $query = db_query('SELECT u.first_name,u.last_name FROM django_spoken.auth_user u LEFT JOIN django_spoken.events_organiser o ON u.id=o.user_id WHERE o.id = 2');
+        $rows = $query->fetchAll();
+        $out .= '<b>Organised By : </b>'.$rows[0]->first_name.' '.$rows[0]->last_name.'<br>';
+    }
+    return $out;
+}
+
 function fossee_clg_autocomplete($str){
     $matches = array();
     db_query("USE fossee_new");
-    $query = db_query('SELECT * FROM clg_names WHERE name LIKE :args;',array(
+    $query = db_query('SELECT * FROM clg_names WHERE name LIKE :args LIMIT 25;',array(
         ':args'=>'%'.$str.'%'
     ));
     $rows = $query->fetchAll();
@@ -207,6 +241,7 @@ function fossee_institute_profiles_display($val){
     $city = ''; // City of the college
     $work = ''; // Worshop html
     $text = ''; // Text book html
+    $self = ''; // Self Workshop HTML
     $i = 1; // Increnet variable
 
     $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(':args'=>$val));
@@ -301,6 +336,15 @@ function fossee_institute_profiles_display($val){
         $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
+    /*********************************** Self Workshop ***********************/
+    $i = 1;
+    $query = db_query('SELECT t.id,t.training_code FROM django_spoken.events_training t, django_spoken.events_academiccenter ac WHERE t.academic_id=ac.id and ac.institution_name LIKE :args',array(':args'=>'%'.$val.'%'));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $self .= '<a href="'.$Fpage.'self/workshop/'.$row->id.'" target="_blank">'.$i.' > '.$row->training_code.'</a><br>';
+        $i++;
+    }
+
     /*********************************** Display Data ******************/
     if(IS_EMPTY($state)) $state = "----";
     if(IS_EMPTY($city)) $city = "----";
@@ -322,7 +366,11 @@ function fossee_institute_profiles_display($val){
     $out .= '<label>Workshops</label><br>';
     if($work != '')
         $out .= $work;
-    else $out .= 'No Workshop Done!';
+    else $out .= 'No Workshop Done!<br>';
+    $out .= '<label>Self Workshops</label><br>';
+    if($self != '')
+        $out .= $self;
+    else $out .= 'No Self Workshop Done!';
     // $out .= '</div>';
     return $out;
 }
@@ -359,7 +407,7 @@ function fossee_profiles_form($form,&$formState){
 }
 
 function fossee_search($form,&$formState){
-    if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 2){    
+    if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 3){    
         $commands[] = ajax_command_invoke(NULL, 'DisplayData', array(fossee_institute_profiles_display($formState['values']['clg'])));
         return array('#type' => "ajax", '#commands' => $commands);
     }else{
