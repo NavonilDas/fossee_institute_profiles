@@ -6,10 +6,14 @@ function fossee_institute_permission(){
             "title" => t("View Workshop"),
             "description" => t("Allows users to view workshop.")
         ),
-        "access college data"=>array(
+        "access lab data"=>array(
+            'title'=>t('View Lab Migration Data'),
+            'description'=>t('Allow users to view lab migration data')
+        ),
+        "access textbook data"=>array(
             'title'=>t('View College Profile Data'),
-            'description'=>t('Allow users to view collge profile data')
-        )
+            'description'=>t('Allow users to view textbook data')
+        ),
     );
 }
 function fossee_institute_profiles_menu(){
@@ -36,19 +40,19 @@ function fossee_institute_profiles_menu(){
             2
         ),
         "access arguments" => array(
-            "access college data"
+            "access lab data"
         ),
         "type" => MENU_CALLBACK,
         'access callback'=>true
     );
     $menu["textbook"] = array(
         "title" => "",
-        "page callback" => "fossee_get_data",
+        "page callback" => "fossee_get_textbook",
         'page arguments' => array(
             2
         ),
         "access arguments" => array(
-            "access college data"
+            "access textbook data"
         ),
         "type" => MENU_CALLBACK,
         'access callback'=>true
@@ -70,12 +74,16 @@ function fossee_clg_autocomplete($str){
         ':args'=>'%'.$str.'%'
     ));
     $rows = $query->fetchAll();
-    // // save the query to matches
+    // save the query to matches
     foreach ($rows as $row) {
       $matches[$row->name] = check_plain($row->name);
     }
-    // Return the result to the form in json
-    return drupal_json_output($matches);
+    return drupal_json_output($matches); // return the data in json format
+}
+
+function fossee_get_textbook($id = 0,$type = ''){
+    $out = '';
+    return $out;
 }
 
 function fossee_get_data($id = 0,$type = ''){
@@ -242,42 +250,42 @@ function fossee_institute_profiles_display($val){
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
     
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM esim.textbook_companion_proposal po left join esim.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
     
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM dwsim_2015.textbook_companion_proposal po left join dwsim_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
     
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM openmodelica.textbook_companion_proposal po left join openmodelica.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<a href="'.$Fpage.'/textbook/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
 
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM cfd_2015.textbook_companion_proposal po left join cfd_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
 
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM or_fossee.textbook_companion_proposal po left join or_fossee.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
     /*********************************** Display Data ******************/
@@ -285,7 +293,7 @@ function fossee_institute_profiles_display($val){
     if(IS_EMPTY($city)) $city = "----";
     if(IS_EMPTY($country)) $country = "----";
 
-    $out .= '<div id="cProfile">';
+    // $out .= '<div id="cProfile">';
     $out .= '<label id="cName">'.$val.'</label><br>';
     $out .= '( <b>Country</b> : '.$country;
     $out .= '&nbsp;&nbsp;<b>State</b> : '.$state;
@@ -302,7 +310,7 @@ function fossee_institute_profiles_display($val){
     if($work != '')
         $out .= $work;
     else $out .= 'No Workshop Done!';
-    $out .= '</div>';
+    // $out .= '</div>';
     return $out;
 }
 
@@ -314,10 +322,7 @@ function IS_EMPTY($val){
 function fossee_institute_profiles_page(){
     drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
     drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-    
-    if(isset($_GET['c'])){
-        return fossee_institute_profiles_display(str_replace('-',' ',$_GET['c']));
-    }else return drupal_get_form('fossee_profiles_form');
+    return drupal_get_form('fossee_profiles_form');
 }
 
 function fossee_profiles_form($form,&$formState){
@@ -329,18 +334,24 @@ function fossee_profiles_form($form,&$formState){
         '#autocomplete_path' => 'clg/autocomplete'
     );
     $form['submit'] = array(
-        '#type'=>'button',
+        '#type'=>'submit',
         '#value'=>'Q',
         '#suffix'=>'</div>',
         '#ajax'=>array(
             'callback'=>'fossee_search'
         )
     );
+    $form['divs']=array('#markup'=>'<div id="cProfile" style="display:none"></div>');
     return $form;
 }
 
 function fossee_search($form,&$formState){
-    $clg = ($formState['values']['clg'] != '')?$formState['values']['clg']:'NODATAFOUNDINDATABASE';
-    $commands[] = ajax_command_invoke(NULL, 'search', array($clg));
-	return array('#type' => "ajax", '#commands' => $commands);
+    
+    if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 2){    
+        $commands[] = ajax_command_invoke(NULL, 'DisplayData', array(fossee_institute_profiles_display($formState['values']['clg'])));
+        return array('#type' => "ajax", '#commands' => $commands);
+    }else{
+        $commands[] = ajax_command_invoke(NULL, 'DIsplayNone',array());
+        return array('#type' => "ajax", '#commands' => $commands);
+    }
 }

@@ -1,0 +1,6 @@
+<?php
+
+// Implementation of hook install
+function fossee_institute_profiles_install(){
+
+}
