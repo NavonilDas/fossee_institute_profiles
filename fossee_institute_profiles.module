@@ -82,7 +82,37 @@ function fossee_clg_autocomplete($str){
 }
 
 function fossee_get_textbook($id = 0,$type = ''){
-    $out = '';
+    $out = 'No Data Found';
+    $qstr = 'SELECT * FROM '.$type.'.textbook_companion_proposal po LEFT JOIN '.$type.'.textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
+    $query = db_query($qstr);
+    $rows = $query->fetchAll();
+    if(count($rows) > 0){
+        drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+        if($type == 'scilab') $ltype = 'Scilab';
+        else if($type == 'esim') $ltype = 'eSim';
+        else if($type == 'dwsim_2015') $ltype = 'DWSIM';
+        else if($type == 'openmodelica') $ltype = 'Open Modelica';
+        else if($type == 'cfd_2015') $ltype = 'OpenFOAM';
+        else $ltype = 'Others';
+        
+        $out = '<div id="text-data"><label>About The Book</label><br>';
+        $out .= '<b>Book : </b>'.$rows[0]->book.'<br>';
+        $out .= '<b>Type : </b>'.$ltype.'<br>';
+        $out .= '<b>Author : </b>'.$rows[0]->author.'<br>';
+        $out .= '<b>Publisher : </b>'.$rows[0]->publisher.'<br>';
+        $out .= '<b>Edition : </b>'.$rows[0]->edition.'<br>';
+        $out .= '<b>Year : </b>'.$rows[0]->year.'<br>';
+        $out .= '<b>ISBN : </b>'.$rows[0]->isbn.'<br>';
+        $out .= '<label>Proposed By</label><br>';
+        $out .= '<b>Name : </b>'.$rows[0]->full_name.'<br>';
+        $out .= '<b>Course : </b>'.$rows[0]->course.'<br>';
+        $out .= '<b>Branch : </b>'.$rows[0]->branch.'<br>';
+        $out .= '<b>University : </b>'.$rows[0]->university.'<br></div>';
+    }
+    if($type == 'scilab')
+        $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+    if($type == 'esim')
+        $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';                
     return $out;
 }
 
@@ -127,9 +157,9 @@ function fossee_get_data($id = 0,$type = ''){
         $out .= '</table>';
         if($rows[0]->approval_status == 3){
             if($type == 'scilab')
-                $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+                $out .= '<a href="http://scilab.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
             if($type == 'esim')
-                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';                
+                $out .= '<a href="http://esim.fossee.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';                
         }
     }
     return $out;
@@ -178,6 +208,14 @@ function fossee_institute_profiles_display($val){
     $work = ''; // Worshop html
     $text = ''; // Text book html
     $i = 1; // Increnet variable
+
+    $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(':args'=>$val));
+    $row = $query->fetchAll();
+    if(count($row) > 0){
+        $city = $row[0]->city;
+        $state = $row[0]->state;
+        $country = $row[0]->country;
+    }
     $query = db_query('SELECT * FROM workshop WHERE venue LIKE :args;',array(':args'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
@@ -192,11 +230,6 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
-            $state = $row->state;
-            $city = $row->city;
-            $country = $row->country;
-        }
         $i++;
     }
 
@@ -204,44 +237,24 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
-            $state = $row->state;
-            $city = $row->city;
-            $country = $row->country;
-        }
         $i++;
     }
     $query = db_query('SELECT * FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
-            $state = $row->state;
-            $city = $row->city;
-            $country = $row->country;
-        }
         $i++;
     }
     $query = db_query('SELECT * FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
-            $state = $row->state;
-            $city = $row->city;
-            $country = $row->country;
-        }
         $i++;
     }
     $query = db_query('SELECT * FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
-            $state = $row->state;
-            $city = $row->city;
-            $country = $row->country;
-        }
         $i++;
     }
 
@@ -346,7 +359,6 @@ function fossee_profiles_form($form,&$formState){
 }
 
 function fossee_search($form,&$formState){
-    
     if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 2){    
         $commands[] = ajax_command_invoke(NULL, 'DisplayData', array(fossee_institute_profiles_display($formState['values']['clg'])));
         return array('#type' => "ajax", '#commands' => $commands);
