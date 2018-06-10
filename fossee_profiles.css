@@ -8,12 +8,12 @@
 }
 
 #suggest{
-    width: 350px;
+    width: 348px;
     position: absolute;
     background: #fff;
     z-index: 100;
-    overflow-x: auto;
-    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.5);
+    overflow: auto;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.5);
     border-left: 1px solid #000;
 }
 
@@ -67,4 +67,16 @@
     right: 50px;
     top:50px;
     color:red;
+}
+
+#rButton{
+    background: orangered;
+    color: #fff;
+    font-size: 1.5em;
+    float: right;
+    margin-right: 10px;
+    padding:5px;
+}
+#rButton:hover{
+    background: rgba(255, 69, 0, 0.8);
 }

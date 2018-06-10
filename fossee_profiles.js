@@ -15,26 +15,35 @@
 })(jQuery);
 
 window.onload = ()=>{
+    setPos();
     if(document.getElementById('clgName'))
     document.getElementById('clgName').addEventListener("keyup", function(event) {
         if(event.which == 8){
             document.getElementById('suggest').innerHTML = "";
+        }else{
         }
+
       }
     );
 }
-
+window.onresize = () =>{
+    setPos();
+}
+function setPos(){
+    var e = document.getElementById('clgName');
+    var x = document.getElementById('suggest');
+    console.log(e);
+    x.style.left = e.offsetLeft+"px";
+    x.style.top = (e.offsetTop+e.offsetHeight-2)+"px";
+    
+}
 function AddTOList(e){
-    var sgst = document.getElementById('suggest');
-    sgst.innerHTML = "";
-    // var len = sci_lab_m.length; // Scilab Lab Migration Proposal
-    // for(var i=0;i<len;i++){
-    //     if(sci_lab_m[i].university.toLowerCase().indexOf(e.value.toLowerCase()) !== -1){
-    //         sgst.innerHTML += sci_lab_m[i].university + "<br>";
-    //     }
-    // }
-    searching(sci_lab_m,e.value,sgst);
-    searching(sci_lab_text,e.value,sgst);
+    if(e.value.length > 2){
+        var sgst = document.getElementById('suggest');
+        sgst.innerHTML = "";
+        searching(sci_lab_m,e.value,sgst);
+        searching(sci_lab_text,e.value,sgst);
+    }
 }
 
 function searching(data,val,sgst){
@@ -55,11 +64,10 @@ function clearSgst(e){
 }
 
 function search(){
-    
+    window.location += '?c='+document.getElementById('clgName').value;
 }
 
 function viewImage(e){
-    
     var el = document.getElementById('VIewBox');
     el.style.display = "flex";
     el.innerHTML = '<img src="'+e.src+'"/><label>X</label>';

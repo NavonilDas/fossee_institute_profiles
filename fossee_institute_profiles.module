@@ -5,6 +5,10 @@ function fossee_institute_permission(){
         "view_workshop" => array(
             "title" => t("View Workshop"),
             "description" => t("Allows users to view workshop.")
+        ),
+        "access college data"=>array(
+            'title'=>t('View College Profile Data'),
+            'description'=>t('Allow users to view collge profile data')
         )
     );
 }
@@ -25,8 +29,70 @@ function fossee_institute_profiles_menu(){
         'access callback'=>true,
         "type" => MENU_CALLBACK
     );
+    $menu["lab-data"] = array(
+        "title" => "",
+        "page callback" => "fossee_get_data",
+        'page arguments' => array(
+            2
+        ),
+        "access arguments" => array(
+            "access college data"
+        ),
+        "type" => MENU_CALLBACK,
+        'access callback'=>true
+    );
     return $menu;
 }
+
+function fossee_get_data($id = 0,$type = ''){
+    $out = '';
+    $qstr = 'SELECT * FROM '.$type.'.lab_migration_proposal WHERE id = '.$id;
+    $query = db_query($qstr);
+    $rows = $query->fetchAll();
+    $rl = count($rows);
+    if($rl > 0){
+        drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+        if($type == 'scilab') $ltype = 'Scilab';
+        else if($type == 'esim') $ltype = 'eSim';
+        else if($type == 'dwsim_2015') $ltype = 'DWSIM';
+        else if($type == 'openmodelica') $ltype = 'Open Modelica';
+        else if($type == 'cfd_2015') $ltype = 'OpenFOAM';
+        else $ltype = 'Others';
+
+        $out = '<table class="table table-bordered table-hover">';
+        $out .= '<tr><td><b>Title</b></td><td>'.$rows[0]->lab_title.'</td></tr>';        
+        $out .= '<tr><td><b>Lab Type</b></td><td>'.$ltype.'</td></tr>';        
+        $out .= '<tr><td><b>By</b></td><td>'.$rows[0]->name_title.' '.$rows[0]->name.'</td></tr>';        
+        $out .= '<tr><td><b>Department</b></td><td>'.$rows[0]->department.'</td></tr>';        
+        $out .= '<tr><td><b>University</b></td><td>'.$rows[0]->university.'</td></tr>';        
+        $out .= '<tr><td><b>City</b></td><td>'.$rows[0]->city.'</td></tr>';
+        $out .= '<tr><td><b>Pin Code</b></td><td>'.$rows[0]->pincode.'</td></tr>';        
+        $out .= '<tr><td><b>State</b></td><td>'.$rows[0]->state.'</td></tr>';        
+        $out .= '<tr><td><b>Country</b></td><td>'.$rows[0]->country.'</td></tr>'; 
+        
+        if($rows[0]->approval_status == 3)     
+            $out .= '<tr><td><b>Progress</b></td><td>Completed</td></tr>';      
+        else if($rows[0]->approval_status == 5)
+            $out .= '<tr><td><b>Progress</b></td><td>Under Observation</td></tr>';
+        else
+            $out .= '<tr><td><b>Progress</b></td><td>In Progress</td></tr>';
+        
+        if($rows[0]->solution_provider_name != ''){
+            $out .= '<tr><td><b>Solution Provider Name</b></td><td>'.$rows[0]->solution_provider_name_title.' '.$rows[0]->solution_provider_name.'</td></tr>';      
+            $out .= '<tr><td><b>Solution Provider Department</b></td><td>'.$rows[0]->solution_provider_department.'</td></tr>';      
+            $out .= '<tr><td><b>Solution Provider University</b></td><td>'.$rows[0]->solution_provider_university.'</td></tr>';
+        }
+        $out .= '</table>';
+        if($rows[0]->approval_status == 3){
+            if($type == 'scilab')
+                $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Open Link</a>';
+            if($type == 'esim')
+                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Open Link</a>';                
+        }
+    }
+    return $out;
+}
+
 function fossee_institute_profiles_workshop($wid = 0){
     $query = db_query('SELECT * FROM workshop WHERE w_id = :args',array(':args'=>$wid));
     $rows = $query->fetchAll();
@@ -83,47 +149,57 @@ function fossee_institute_profiles_display($val){
     $query = db_query('SELECT * FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="http://scilab.in/lab_migration_run/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state))    $state = $row->state;
-        if(IS_EMPTY($city))     $city = $row->city;
-        if(IS_EMPTY($country))  $country = $row->country;    
+        $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
+            $state = $row->state;
+            $city = $row->city;
+            $country = $row->country;
+        }
         $i++;
     }
 
     $query = db_query('SELECT * FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="http://esim.fossee.in/lab_migration_run/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state))    $state = $row->state;
-        if(IS_EMPTY($city))     $city = $row->city;
-        if(IS_EMPTY($country))  $country = $row->country;
+        $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
+            $state = $row->state;
+            $city = $row->city;
+            $country = $row->country;
+        }
         $i++;
     }
     $query = db_query('SELECT * FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state))    $state = $row->state;
-        if(IS_EMPTY($city))     $city = $row->city;
-        if(IS_EMPTY($country))  $country = $row->country;
+        $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
+            $state = $row->state;
+            $city = $row->city;
+            $country = $row->country;
+        }
         $i++;
     }
     $query = db_query('SELECT * FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state))    $state = $row->state;
-        if(IS_EMPTY($city))     $city = $row->city;
-        if(IS_EMPTY($country))  $country = $row->country;
+        $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
+            $state = $row->state;
+            $city = $row->city;
+            $country = $row->country;
+        }
         $i++;
     }
     $query = db_query('SELECT * FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
-        if(IS_EMPTY($state))    $state = $row->state;
-        if(IS_EMPTY($city))     $city = $row->city;
-        if(IS_EMPTY($country))  $country = $row->country;
+        $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        if(IS_EMPTY($state) || IS_EMPTY($city) || IS_EMPTY($country)){    
+            $state = $row->state;
+            $city = $row->city;
+            $country = $row->country;
+        }
         $i++;
     }
 
