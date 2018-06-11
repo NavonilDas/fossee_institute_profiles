@@ -1,6 +1,6 @@
 <?php
 // https://docs.google.com/document/d/1wZ4iLe92_w6UjKk_eC34A6x1X3NRC32ywiiYo0E6f04/edit?usp=sharing
-function fossee_institute_permission(){
+function fossee_institute_profiles_permission(){
     return array(
         "view_workshop" => array(
             "title" => t("View Workshop"),
@@ -21,6 +21,10 @@ function fossee_institute_permission(){
         'access selfworkshop data'=>array(
             'title'=>t('View Self Workshop Data'),
             'description'=>t('Allow User to View Self Workshop Data')
+        ),
+        'administer onthisdate settings' => array(
+           'title'=>t('Admin'),
+           'description'=>t('Admin') 
         )
     );
 }
@@ -58,45 +62,35 @@ function fossee_institute_profiles_menu(){
         "type" => MENU_CALLBACK,
         'access callback'=>true
     );
-    $menu["self/workshop"] = array(
-        "title" => "",
-        "page callback" => "fossee_get_selfworkshop",
-        "access arguments" => array("access selfworkshop data"),
-        "type" => MENU_CALLBACK,
-        'access callback'=>true
-    );
     $menu['clg/autocomplete'] = array(
         'title' => 'Autocomplete for cities',
         'page callback' => 'fossee_clg_autocomplete',
         'access arguments' => array('use autocomplete'),  //or whatever permission makes sense
         'type' => MENU_CALLBACK,
         'access callback'=>true
-      );
+    );
+    $menu['admin/settings/cProfiles'] = array(
+        'title' => 'College Autocomplete Settings',
+        'description' => 'Edit The Autocomplete',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('fossee_profile_admin'),
+        'access arguments' => array('administer onthisdate settings'),
+        'type' => MENU_NORMAL_ITEM,
+    );
     return $menu;
 }
 
-function fossee_get_selfworkshop($id){
-    $out = 'No Data Found!';
-    $query = db_query('SELECT t.training_code,ac.institution_name,ac.academic_code,ac.address,t.participant_count FROM django_spoken.events_training t, django_spoken.events_academiccenter ac, django_spoken.events_city c, django_spoken.events_state s WHERE t.academic_id=ac.id and t.id=:tid  and ac.city_id=c.id and c.state_id=s.id',array(':tid'=>$id));
-    $row = $query->fetchAll();
-    if(count($row) > 0){
-        $out = '';
-        if(!IS_EMPTY($row[0]->training_code))
-            $out .= '<b>Workshop Code : </b>'.$row[0]->training_code.'<br>'; 
-        if(!IS_EMPTY($row[0]->institution_name))
-            $out .= '<b>Institution Name : </b>'.$row[0]->institution_name.'<br>';
-        if(!IS_EMPTY($row[0]->academic_code))
-            $out .= '<b>Academic Code : </b>'.$row[0]->academic_code.'<br>';
-        if(!IS_EMPTY($row[0]->address))
-            $out .= '<b>Address : </b>'.$row[0]->address.'<br>';
-        if(!IS_EMPTY($row[0]->participant_count))
-            $out .= '<b>No of Participants : </b>'.$row[0]->participant_count.'<br>';
-        $query = db_query('SELECT u.first_name,u.last_name FROM django_spoken.auth_user u LEFT JOIN django_spoken.events_organiser o ON u.id=o.user_id WHERE o.id = 2');
-        $rows = $query->fetchAll();
-        if(!IS_EMPTY($rows[0]->first_name) || !IS_EMPTY($rows[0]->last_name))
-            $out .= '<b>Organised By : </b>'.$rows[0]->first_name.' '.$rows[0]->last_name.'<br>';
-    }
-    return $out;
+function fossee_profile_admin($form,&$formState) {
+    $form['desp'] = array('#markup'=>'<h1>Increase The Autocomplete Suggestion</h1>');
+    $form['update_autocomplete'] = array(
+      '#type' => 'button',
+      '#title' => t('Click on The Button to Start Process'),
+      '#value'=>'Start',
+      '#ajax'=>array(
+          'callback'=>'fossee_profile_'
+      )
+    );
+    return system_settings_form($form);
 }
 
 // Function returns json of autocomplete data
@@ -249,7 +243,6 @@ function fossee_institute_profiles_display($val){
     $city = ''; // City of the college
     $work = ''; // Worshop html
     $text = ''; // Text book html
-    $self = ''; // Self Workshop HTML
     $i = 1; // Increnet variable
 
     // Get City,State,Country of a College
@@ -379,18 +372,6 @@ function fossee_institute_profiles_display($val){
         $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-    /*********************************** Self Workshop ***********************/
-    $i = 1;
-    // Get self workshop id,training_code
-    $query = db_query('SELECT t.id,t.training_code FROM django_spoken.events_training t, django_spoken.events_academiccenter ac WHERE t.academic_id=ac.id and ac.institution_name LIKE :args',array(
-        ':args'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $self .= '<a href="'.$Fpage.'self/workshop/'.$row->id.'" target="_blank">'.$i.' > '.$row->training_code.'</a><br>';
-        $i++;
-    }
-
     /*********************************** Display Data ******************/
     // Check wether state,city,country is empty
     if(IS_EMPTY($state))    $state = "----";
@@ -413,10 +394,7 @@ function fossee_institute_profiles_display($val){
     if($work != '')
         $out .= $work;
     else $out .= 'No Workshop Done!<br>';
-    $out .= '<label>Self Workshops</label><br>';
-    if($self != '')
-        $out .= $self;
-    else $out .= 'No Self Workshop Done!';
+    $out .= '<label>Circuit Simulation Projects</label>';
     return $out;
 }
 
