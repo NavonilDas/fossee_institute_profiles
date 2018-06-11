@@ -44,7 +44,12 @@ function fossee_institute_profiles_menu(){
         'title'=>'College Profiles',
         'description'=>'College Profile',
         'page callback'=>'fossee_profiles_page',
-        // 'page arguments'=>array('fossee_profiles_form'),
+        'access callback'=>true
+    );
+    $menu['cProfiles/all'] = array(
+        'title'=>'All Colleges',
+        'description'=>'Display ALl Colleges',
+        'page callback'=>'fossee_profiles_all_clg',
         'access callback'=>true
     );
     $menu['workshop/view'] = array(
@@ -102,6 +107,40 @@ function fossee_institute_profiles_menu(){
         'access callback'=>true
     );
     return $menu;
+}
+
+function fossee_profiles_all_clg(){
+    $out = '';
+    $all = 0;
+    $s = 0;
+    if(isset($_GET['page']))
+        $s = (int)$_GET['page'] - 1;
+    if($s<0) $s = 0;
+    if($s > 31) return '<b>Error Page Not Found</b>';
+    db_set_active(); // Set the Default
+    $query = db_query('SELECT count(name) as count FROM clg_names');
+    $rows = $query->fetchAll();
+    $Fpage = drupal_get_normal_path(url()); // Get the front url
+    $all = (int)$rows[0]->count;
+    drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+    $query = db_query('SELECT name FROM clg_names ORDER BY name ASC LIMIT 25 OFFSET '.($s*25));
+    $rows = $query->fetchAll();
+    $i = 1;
+    foreach($rows as $row){
+        $out .= '<a href="'.$Fpage.'cProfiles?c='.str_replace(' ','%20', $row->name).'" target="_blank">'.$i.' > '.$row->name.'</a><br>';
+        $i++;
+    }
+    $out .= '<div id="theRow"><a href="'.$Fpage.'cProfiles/all?page=1">First</a>';
+    if($s > 0)
+        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s-1).'">&lt;</a>';
+    for($j=1;$j<=5;$j++){
+        if($s+$j+1 <= 32)
+        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+$j+1).'">'.($s+$j+1).'</a>';
+    }
+    if($s < round($all/25)-1)
+        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+1).'">&gt;</a>';
+    $out .= '<a href="'.$Fpage.'cProfiles/all?page=32">Last</a></div>';
+    return $out;
 }
 
 function fossee_profiles_flow($id = 0){

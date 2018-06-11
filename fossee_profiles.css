@@ -75,3 +75,12 @@
 #thedata-1,#thedata-2,#thedata-3,#thedata-4,#thedata-5,#thedata-6{
     min-height: 200px;
 }
+#theRow{
+    float: right;
+}
+#theRow a{
+    padding:5px;
+    background: gray;
+    color: #fff;
+    margin:1px;
+}
