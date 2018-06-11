@@ -29,7 +29,8 @@ function fossee_institute_profiles_menu(){
     $menu['cProfiles'] = array(
         'title'=>'College Profiles',
         'description'=>'College Profile',
-        'page callback'=>'fossee_institute_profiles_page',
+        'page callback'=>'drupal_get_form',
+        'page arguments'=>array('fossee_profiles_form'),
         'access callback'=>true
     );
     $menu['workshop/view'] = array(
@@ -75,32 +76,39 @@ function fossee_institute_profiles_menu(){
 }
 
 function fossee_get_selfworkshop($id){
-    $out = '';
+    $out = 'No Data Found!';
     $query = db_query('SELECT t.training_code,ac.institution_name,ac.academic_code,ac.address,t.participant_count FROM django_spoken.events_training t, django_spoken.events_academiccenter ac, django_spoken.events_city c, django_spoken.events_state s WHERE t.academic_id=ac.id and t.id=:tid  and ac.city_id=c.id and c.state_id=s.id',array(':tid'=>$id));
     $row = $query->fetchAll();
     if(count($row) > 0){
-        $out .= '<b>Workshop Code : </b>'.$row[0]->training_code.'<br>'; 
-        $out .= '<b>Institution Name : </b>'.$row[0]->institution_name.'<br>';
-        $out .= '<b>Academic Code : </b>'.$row[0]->academic_code.'<br>';
-        $out .= '<b>Address : </b>'.$row[0]->address.'<br>';
-        $out .= '<b>No of Participants : </b>'.$row[0]->participant_count.'<br>';
+        $out = '';
+        if(!IS_EMPTY($row[0]->training_code))
+            $out .= '<b>Workshop Code : </b>'.$row[0]->training_code.'<br>'; 
+        if(!IS_EMPTY($row[0]->institution_name))
+            $out .= '<b>Institution Name : </b>'.$row[0]->institution_name.'<br>';
+        if(!IS_EMPTY($row[0]->academic_code))
+            $out .= '<b>Academic Code : </b>'.$row[0]->academic_code.'<br>';
+        if(!IS_EMPTY($row[0]->address))
+            $out .= '<b>Address : </b>'.$row[0]->address.'<br>';
+        if(!IS_EMPTY($row[0]->participant_count))
+            $out .= '<b>No of Participants : </b>'.$row[0]->participant_count.'<br>';
         $query = db_query('SELECT u.first_name,u.last_name FROM django_spoken.auth_user u LEFT JOIN django_spoken.events_organiser o ON u.id=o.user_id WHERE o.id = 2');
         $rows = $query->fetchAll();
-        $out .= '<b>Organised By : </b>'.$rows[0]->first_name.' '.$rows[0]->last_name.'<br>';
+        if(!IS_EMPTY($rows[0]->first_name) || !IS_EMPTY($rows[0]->last_name))
+            $out .= '<b>Organised By : </b>'.$rows[0]->first_name.' '.$rows[0]->last_name.'<br>';
     }
     return $out;
 }
 
+// Function returns json of autocomplete data
 function fossee_clg_autocomplete($str){
     $matches = array();
     db_query("USE fossee_new");
     $query = db_query('SELECT * FROM clg_names WHERE name LIKE :args LIMIT 25;',array(
         ':args'=>'%'.$str.'%'
     ));
-    $rows = $query->fetchAll();
-    // save the query to matches
+    $rows = $query->fetchAll(); 
     foreach ($rows as $row) {
-      $matches[$row->name] = check_plain($row->name);
+      $matches[$row->name] = check_plain($row->name);    // save the query to matches
     }
     return drupal_json_output($matches); // return the data in json format
 }
@@ -190,7 +198,9 @@ function fossee_get_data($id = 0,$type = ''){
 }
 
 function fossee_institute_profiles_workshop($wid = 0){
-    $query = db_query('SELECT * FROM workshop WHERE w_id = :args',array(':args'=>$wid));
+    $query = db_query('SELECT w_name,startdate,enddate,no_of_participant,venue,event_link,body FROM workshop WHERE w_id = :args',array(
+        ':args'=>$wid
+    ));
     $rows = $query->fetchAll();
     $out = '<b>NO Data Find!</b>';
     if(count($rows) > 0){
@@ -198,15 +208,23 @@ function fossee_institute_profiles_workshop($wid = 0){
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
         
         $out = '<table class="table table-bordered table-hover">';
-        $out .= '<tr><td><b>Name</b></td><td>'.$rows[0]->w_name.'</td></tr>';
-        $out .= '<tr><td><b>Start Date</b></td><td>'.$rows[0]->startdate.'</td></tr>';
-        $out .= '<tr><td><b>End Date</b></td><td>'.$rows[0]->enddate.'</td></tr>';
-        $out .= '<tr><td><b>No. of Participants</b></td><td>'.$rows[0]->no_of_participant.'</td></tr>';
-        $out .= '<tr><td><b>Venue</b></td><td>'.$rows[0]->venue.'</td></tr>';
-        if($rows[0]->event_link != '')
+        if(!IS_EMPTY($rows[0]->w_name))
+            $out .= '<tr><td><b>Name</b></td><td>'.$rows[0]->w_name.'</td></tr>';
+        if(!IS_EMPTY($rows[0]->startdate))
+            $out .= '<tr><td><b>Start Date</b></td><td>'.$rows[0]->startdate.'</td></tr>';
+        if(!IS_EMPTY($rows[0]->enddate))
+            $out .= '<tr><td><b>End Date</b></td><td>'.$rows[0]->enddate.'</td></tr>';
+        if(!IS_EMPTY($rows[0]->no_of_participant))
+            $out .= '<tr><td><b>No. of Participants</b></td><td>'.$rows[0]->no_of_participant.'</td></tr>';
+        if(!IS_EMPTY($rows[0]->venue))
+            $out .= '<tr><td><b>Venue</b></td><td>'.$rows[0]->venue.'</td></tr>';
+        if(!IS_EMPTY($rows[0]->event_link))
             $out .= '<tr><td><b>Events Website</b></td><td>'.$rows[0]->event_link.'</td></tr>';    
-        $out .= '<tr><td><b>Details</b></td><td>'.$rows[0]->body.'</td></tr>';
-        $query = db_query('SELECT * FROM workshop_images WHERE w_id = :args',array(':args'=>$wid));
+        if(!IS_EMPTY($rows[0]->body))
+            $out .= '<tr><td><b>Details</b></td><td>'.$rows[0]->body.'</td></tr>';
+        $query = db_query('SELECT * FROM workshop_images WHERE w_id = :args',array(
+            ':args'=>$wid
+        ));
         $rows = $query->fetchAll();
         $rl = count($rows);
         $Fpage = drupal_get_normal_path(url()); // Get the front url
@@ -234,14 +252,22 @@ function fossee_institute_profiles_display($val){
     $self = ''; // Self Workshop HTML
     $i = 1; // Increnet variable
 
-    $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(':args'=>$val));
+    // Get City,State,Country of a College
+    $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(
+        ':args'=>$val
+    ));
     $row = $query->fetchAll();
+
     if(count($row) > 0){
         $city = $row[0]->city;
         $state = $row[0]->state;
         $country = $row[0]->country;
     }
-    $query = db_query('SELECT * FROM workshop WHERE venue LIKE :args;',array(':args'=>'%'.$val.'%'));
+
+    // Get workshop id,name 
+    $query = db_query('SELECT w_id,w_name FROM workshop WHERE venue LIKE :args;',array(
+        ':args'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
 
@@ -249,34 +275,48 @@ function fossee_institute_profiles_display($val){
         $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$i.' > '.$row->w_name.'</a><br>';
         $i++;
     }
-    // Lab Migration Proposal
+    /************************************ Lab Migration Proposal ***********************/
     $i = 1;
-    $query = db_query('SELECT * FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
+    // Get scilab Lab title,id
+    $query = db_query('SELECT id,lab_title FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         $i++;
     }
-
-    $query = db_query('SELECT * FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
+    // Get esim lab id,title
+    $query = db_query('SELECT id,lab_title FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         $i++;
     }
-    $query = db_query('SELECT * FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
+    // Get openmodelica lab id,title
+    $query = db_query('SELECT id,lab_title FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         $i++;
     }
-    $query = db_query('SELECT * FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
+    // Get dwsim_2015 lab id,title
+    $query = db_query('SELECT id,lab_title FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
         $i++;
     }
-    $query = db_query('SELECT * FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(':arg'=>'%'.$val.'%'));
+    // Get cfd_2015 lab id,title
+    $query = db_query('SELECT id,lab_title FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
@@ -285,42 +325,55 @@ function fossee_institute_profiles_display($val){
 
     /***************************** Text book********************* */
     $i = 1;
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    // Get scilab book,author,id
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-    
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM esim.textbook_companion_proposal po left join esim.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    // Get esim book,id,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM esim.textbook_companion_proposal po left join esim.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-    
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM dwsim_2015.textbook_companion_proposal po left join dwsim_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    // Get dwsim_2015 book,id,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM dwsim_2015.textbook_companion_proposal po left join dwsim_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-    
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM openmodelica.textbook_companion_proposal po left join openmodelica.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    // Get openmodelica id,book,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM openmodelica.textbook_companion_proposal po left join openmodelica.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<a href="'.$Fpage.'/textbook/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM cfd_2015.textbook_companion_proposal po left join cfd_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    // Get cfd_2015 id,book,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM cfd_2015.textbook_companion_proposal po left join cfd_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
-
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM or_fossee.textbook_companion_proposal po left join or_fossee.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(':arg'=>'%'.$val.'%'));
+    // Get or_fossee id,author,book
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM or_fossee.textbook_companion_proposal po left join or_fossee.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
@@ -328,7 +381,10 @@ function fossee_institute_profiles_display($val){
     }
     /*********************************** Self Workshop ***********************/
     $i = 1;
-    $query = db_query('SELECT t.id,t.training_code FROM django_spoken.events_training t, django_spoken.events_academiccenter ac WHERE t.academic_id=ac.id and ac.institution_name LIKE :args',array(':args'=>'%'.$val.'%'));
+    // Get self workshop id,training_code
+    $query = db_query('SELECT t.id,t.training_code FROM django_spoken.events_training t, django_spoken.events_academiccenter ac WHERE t.academic_id=ac.id and ac.institution_name LIKE :args',array(
+        ':args'=>'%'.$val.'%'
+    ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $self .= '<a href="'.$Fpage.'self/workshop/'.$row->id.'" target="_blank">'.$i.' > '.$row->training_code.'</a><br>';
@@ -336,9 +392,10 @@ function fossee_institute_profiles_display($val){
     }
 
     /*********************************** Display Data ******************/
-    if(IS_EMPTY($state)) $state = "----";
-    if(IS_EMPTY($city)) $city = "----";
-    if(IS_EMPTY($country)) $country = "----";
+    // Check wether state,city,country is empty
+    if(IS_EMPTY($state))    $state = "----";
+    if(IS_EMPTY($city))     $city = "----";
+    if(IS_EMPTY($country))  $country = "----";
 
     $out .= '<label id="cName">'.$val.'</label><br>';
     $out .= '( <b>Country</b> : '.$country;
@@ -367,14 +424,10 @@ function fossee_institute_profiles_display($val){
 function IS_EMPTY($val){
     return ($val === '' || $val === 'None' || $val === '0');
 }
-
-function fossee_institute_profiles_page(){
+ //  College Searching Form
+function fossee_profiles_form($form,&$formState){
     drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
     drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-    return drupal_get_form('fossee_profiles_form');
-}
-
-function fossee_profiles_form($form,&$formState){
     $form['clg'] = array(
         '#type' => 'textfield',
         '#title' => '',
