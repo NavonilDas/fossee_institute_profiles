@@ -1,5 +1,7 @@
 <?php
 // https://docs.google.com/document/d/1wZ4iLe92_w6UjKk_eC34A6x1X3NRC32ywiiYo0E6f04/edit?usp=sharing
+include_once('inc/insert.inc');
+
 function fossee_institute_profiles_permission(){
     return array(
         "view_workshop" => array(
@@ -151,16 +153,19 @@ function fossee_profiles_ckt($id = 0){
 function fossee_profile_admin($form,&$formState) {
     $form['desp'] = array('#markup'=>'<h1>Increase The Autocomplete Suggestion</h1>');
     $form['update_autocomplete'] = array(
-      '#type' => 'button',
+      '#type' => 'submit',
       '#title' => t('Click on The Button to Start Process'),
       '#value'=>'Start',
-      '#ajax'=>array(
-          'callback'=>'fossee_profile_update_autocomplete'
+      '#submit'=>array(
+          'fossee_profile_update_autocomplete'
       )
     );
     return system_settings_form($form);
 }
-
+function fossee_profile_update_autocomplete(){
+    InsertData();
+    drupal_set_message('Done');
+}
 // Function returns json of autocomplete data
 function fossee_clg_autocomplete($str){
     $matches = array();
