@@ -244,19 +244,21 @@ function fossee_institute_profiles_display($val){
     $work = ''; // Worshop html
     $text = ''; // Text book html
     $i = 1; // Increnet variable
+    $ckt = ''; // Circuit Simulation Html
+    $flow = ''; // Flowsheeting HTMl
 
     // Get City,State,Country of a College
     $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(
         ':args'=>$val
     ));
     $row = $query->fetchAll();
-
-    if(count($row) > 0){
-        $city = $row[0]->city;
-        $state = $row[0]->state;
-        $country = $row[0]->country;
+    foreach($row as $r){
+        if(IS_EMPTY($city) || IS_EMPTY($state) || IS_EMPTY($country)){
+            $city = $r->city;
+            $state = $r->state;
+            $country = $r->country;
+        }
     }
-
     // Get workshop id,name 
     $query = db_query('SELECT w_id,w_name FROM workshop WHERE venue LIKE :args;',array(
         ':args'=>'%'.$val.'%'
@@ -316,7 +318,7 @@ function fossee_institute_profiles_display($val){
         $i++;
     }
 
-    /***************************** Text book********************* */
+    /***************************** Text book ********************* */
     $i = 1;
     // Get scilab book,author,id
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
@@ -372,6 +374,26 @@ function fossee_institute_profiles_display($val){
         $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
         $i++;
     }
+    /*********************************** CIrcuit Simulation ******************/
+    $i = 1;
+    $query = db_query('SELECT id,project_title FROM esim.esim_circuit_simulation_proposal WHERE university LIKE :args',array(
+        ':args'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $ckt .= '<a href="'.$Fpage.'ckt/'.$row->id.'">'.$i.' > '.$row->project_title.'</a><br>';
+        $i++;
+    }
+    /*********************************** Flowsheeting Projects ******************/
+    $i = 1;
+    $query = db_query('SELECT id,project_title From dwsim_2015.dwsim_flowsheet_proposal WHERE university LIKE :args',array(
+        ':args'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $flow .= '<a href="'.$Fpage.'flow/'.$row->id.'">'.$i.' > '.$row->project_title.'</a><br>';
+        $i++;
+    }
     /*********************************** Display Data ******************/
     // Check wether state,city,country is empty
     if(IS_EMPTY($state))    $state = "----";
@@ -394,7 +416,14 @@ function fossee_institute_profiles_display($val){
     if($work != '')
         $out .= $work;
     else $out .= 'No Workshop Done!<br>';
-    $out .= '<label>Circuit Simulation Projects</label>';
+    $out .= '<label>Circuit Simulation Projects</label><br>';
+    if($ckt != '')
+        $out.= $ckt;
+    else $out.= 'No Circuit Simulation Done!<br>';
+    $out .= '<label>Flowsheeting Projects</label><br>';
+    if($flow != '')
+        $out .= $flow;
+    else $out.= 'No Flowsheeting Projects Done!<br>';
     return $out;
 }
 
