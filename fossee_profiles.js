@@ -12,7 +12,6 @@
         }
     });
 })(jQuery);
-
 function viewImage(e){
     var el = document.getElementById('VIewBox');
     el.style.display = "flex";
@@ -20,4 +19,19 @@ function viewImage(e){
     el.onclick = ()=>{
         document.getElementById('VIewBox').style.display = "none";
     }
+}
+
+function ChangeTab(id){
+    var el = document.querySelectorAll('#thetabs > li');
+    if(el){
+        for(var i=1;i<=6;i++){
+            if(i != id){
+                el[i-1].classList.remove('active');
+                document.getElementById('thedata-'+i).style.display = 'none';
+            }
+        }
+        el[id-1].classList.add('active');
+    }
+    document.getElementById('thedata-'+id).style.display = 'block';
+
 }

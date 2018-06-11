@@ -41,8 +41,8 @@ function fossee_institute_profiles_menu(){
     $menu['cProfiles'] = array(
         'title'=>'College Profiles',
         'description'=>'College Profile',
-        'page callback'=>'drupal_get_form',
-        'page arguments'=>array('fossee_profiles_form'),
+        'page callback'=>'fossee_profiles_page',
+        // 'page arguments'=>array('fossee_profiles_form'),
         'access callback'=>true
     );
     $menu['workshop/view'] = array(
@@ -120,7 +120,15 @@ function fossee_profiles_flow($id = 0){
         }
     return $out;
 }
+function fossee_profiles_page(){
+    drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
+    drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
 
+    if(isset($_GET['c']))
+    return fossee_institute_profiles_display($_GET['c']);
+
+    return drupal_get_form('fossee_profiles_form');
+}
 function fossee_profiles_ckt($id = 0){
     $out = '';
     $query = db_query('SELECT * FROM esim.esim_circuit_simulation_proposal WHERE id='.$id);
@@ -147,7 +155,7 @@ function fossee_profile_admin($form,&$formState) {
       '#title' => t('Click on The Button to Start Process'),
       '#value'=>'Start',
       '#ajax'=>array(
-          'callback'=>'fossee_profile_'
+          'callback'=>'fossee_profile_update_autocomplete'
       )
     );
     return system_settings_form($form);
@@ -306,7 +314,7 @@ function fossee_institute_profiles_display($val){
     $i = 1; // Increnet variable
     $ckt = ''; // Circuit Simulation Html
     $flow = ''; // Flowsheeting HTMl
-
+    $caseS = ''; // Case Study HTML
     // Get City,State,Country of a College
     $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(
         ':args'=>$val
@@ -459,31 +467,29 @@ function fossee_institute_profiles_display($val){
     if(IS_EMPTY($state))    $state = "----";
     if(IS_EMPTY($city))     $city = "----";
     if(IS_EMPTY($country))  $country = "----";
-
-    $out .= '<label id="cName">'.$val.'</label><br>';
-    $out .= '( <b>Country</b> : '.$country;
-    $out .= '&nbsp;&nbsp;<b>State</b> : '.$state;
-    $out .= '&nbsp;&nbsp;<b>City</b> : '.$city.' )';
-    $out .= '<br><label>Lab Migration</label><br>';
-    if($lab != '')
-        $out .= $lab;
-    else $out .= 'No Lab migration Done!<br>';
-    $out .= '<label>Textbook Companion</label><br>';
-    if($text != '')
-        $out .= $text;
-    else $out .= "No Textbook Companion!<br>";
-    $out .= '<label>Workshops</label><br>';
-    if($work != '')
-        $out .= $work;
-    else $out .= 'No Workshop Done!<br>';
-    $out .= '<label>Circuit Simulation Projects</label><br>';
-    if($ckt != '')
-        $out.= $ckt;
-    else $out.= 'No Circuit Simulation Done!<br>';
-    $out .= '<label>Flowsheeting Projects</label><br>';
-    if($flow != '')
-        $out .= $flow;
-    else $out.= 'No Flowsheeting Projects Done!<br>';
+    if(IS_EMPTY($lab)) $lab =    '<b>No Lab Migration Done!</b>';
+    if(IS_EMPTY($text)) $text =  '<b>No Textbook Companion Done!</b>';
+    if(IS_EMPTY($work)) $work =  '<b>No Workshop Done!</b>';
+    if(IS_EMPTY($ckt)) $ckt =    '<b>No Circuit Simulation Done!</b>';
+    if(IS_EMPTY($flow)) $flow =  '<b>No Flowsheeting Projects Done!</b>';
+    if(IS_EMPTY($caseS)) $caseS ='<b>No Case Study Done!</b>';
+    
+    $out .= '<h1>'.$val.'</h1>';
+    $out .= '<h3>( <b>Country : </b>'.$country.'<b> State :</b>'.$state.'<b> City : </b>'.$city.' )</h1>';
+    $out .= '<ul id="thetabs">
+    <li onclick="ChangeTab(1)" class="active">Lab Migration</li>
+    <li onclick="ChangeTab(2)">Textbook Companion</li>
+    <li onclick="ChangeTab(3)">Workshop</li>
+    <li onclick="ChangeTab(4)">Circuit Simulation</li>
+    <li onclick="ChangeTab(5)">Flowsheeting Projects</li>
+    <li onclick="ChangeTab(6)">Case Study Project</li>
+</ul>';
+    $out .= '<div id="thedata-1" style="display:block">'.$lab.'</div>';
+    $out .= '<div id="thedata-2" style="display:none">'.$text.'</div>';
+    $out .= '<div id="thedata-3" style="display:none">'.$work.'</div>';
+    $out .= '<div id="thedata-4" style="display:none">'.$ckt.'</div>';
+    $out .= '<div id="thedata-5" style="display:none">'.$flow.'</div>';
+    $out .= '<div id="thedata-6" style="display:none">'.$caseS.'</div>';
     return $out;
 }
 
@@ -493,8 +499,6 @@ function IS_EMPTY($val){
 }
  //  College Searching Form
 function fossee_profiles_form($form,&$formState){
-    drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
-    drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
     $form['clg'] = array(
         '#type' => 'textfield',
         '#title' => '',
