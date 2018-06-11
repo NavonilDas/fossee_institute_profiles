@@ -35,18 +35,14 @@ function fossee_institute_profiles_menu(){
     $menu['workshop/view'] = array(
         "title" => "Workshop",
         "page callback" => "fossee_institute_profiles_workshop",
-        "access arguments" => array(
-            "view_workshop"
-        ),
+        "access arguments" => array("view_workshop"),
         'access callback'=>true,
         "type" => MENU_CALLBACK
     );
     $menu["lab-data"] = array(
         "title" => "",
         "page callback" => "fossee_get_data",
-        'page arguments' => array(
-            2
-        ),
+        'page arguments' => array(2),
         "access arguments" => array(
             "access lab data"
         ),
@@ -56,21 +52,15 @@ function fossee_institute_profiles_menu(){
     $menu["textbook"] = array(
         "title" => "",
         "page callback" => "fossee_get_textbook",
-        'page arguments' => array(
-            2
-        ),
-        "access arguments" => array(
-            "access textbook data"
-        ),
+        'page arguments' => array(2),
+        "access arguments" => array("access textbook data"),
         "type" => MENU_CALLBACK,
         'access callback'=>true
     );
     $menu["self/workshop"] = array(
         "title" => "",
         "page callback" => "fossee_get_selfworkshop",
-        "access arguments" => array(
-            "access selfworkshop data"
-        ),
+        "access arguments" => array("access selfworkshop data"),
         "type" => MENU_CALLBACK,
         'access callback'=>true
     );
@@ -350,7 +340,6 @@ function fossee_institute_profiles_display($val){
     if(IS_EMPTY($city)) $city = "----";
     if(IS_EMPTY($country)) $country = "----";
 
-    // $out .= '<div id="cProfile">';
     $out .= '<label id="cName">'.$val.'</label><br>';
     $out .= '( <b>Country</b> : '.$country;
     $out .= '&nbsp;&nbsp;<b>State</b> : '.$state;
@@ -371,7 +360,6 @@ function fossee_institute_profiles_display($val){
     if($self != '')
         $out .= $self;
     else $out .= 'No Self Workshop Done!';
-    // $out .= '</div>';
     return $out;
 }
 
@@ -398,9 +386,7 @@ function fossee_profiles_form($form,&$formState){
         '#type'=>'submit',
         '#value'=>'Q',
         '#suffix'=>'</div>',
-        '#ajax'=>array(
-            'callback'=>'fossee_search'
-        )
+        '#ajax'=>array('callback'=>'fossee_search')
     );
     $form['divs']=array('#markup'=>'<div id="cProfile" style="display:none"></div>');
     return $form;
