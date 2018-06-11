@@ -25,6 +25,14 @@ function fossee_institute_profiles_permission(){
         'administer onthisdate settings' => array(
            'title'=>t('Admin'),
            'description'=>t('Admin') 
+        ),
+        'access circuit data'=>array(
+            'title'=>t('View Circuit Simulation'),
+            'description'=>t('Access Circuit Simulation Data')
+        ),
+        'access flowsheeting data'=>array(
+            'title'=>t('View Flowsheeting data'),
+            'description'=>t('Access Flowsheeting data')
         )
     );
 }
@@ -77,7 +85,59 @@ function fossee_institute_profiles_menu(){
         'access arguments' => array('administer onthisdate settings'),
         'type' => MENU_NORMAL_ITEM,
     );
+    $menu['ckt'] = array(
+        'title'=>'View Circuit Simulation',
+        'page callback'=>'fossee_profiles_ckt',
+        'access arguments'=>array('access circuit data'),
+        'type'=>MENU_CALLBACK,
+        'access callback'=>true
+    );
+    $menu['flow'] = array(
+        'title'=>'View Circuit Simulation',
+        'page callback'=>'fossee_profiles_flow',
+        'access arguments'=>array('access flowsheeting data'),
+        'type'=>MENU_CALLBACK,
+        'access callback'=>true
+    );
     return $menu;
+}
+
+function fossee_profiles_flow($id = 0){
+    $out = '';
+    $query = db_query('SELECT * FROM dwsim_2015.dwsim_flowsheet_proposal WHERE id='.$id);
+    $rows = $query->fetchAll();
+    if(count($rows) > 0){
+        drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+        $out .= '<b>Title : </b>'.$rows[0]->project_title.'<br>';
+        $out .= '<b>Proposed By : </b>'.$rows[0]->name_title.' '.$rows[0]->contributor_name.'<br>';
+        $out .= '<b>University : </b>'.$rows[0]->university.'<br>';
+        $out .= '<b>Reference : </b>'.$rows[0]->refernce.'<br>';
+        if($rows[0]->approval_status == 3)
+            $out .= '<b>Progress : </b>Completed<br>';
+        else 
+            $out .= '<b>Progress : </b>In Progress<br>';
+        $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        }
+    return $out;
+}
+
+function fossee_profiles_ckt($id = 0){
+    $out = '';
+    $query = db_query('SELECT * FROM esim.esim_circuit_simulation_proposal WHERE id='.$id);
+    $rows = $query->fetchAll();
+    if(count($rows) > 0){
+        drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+        $out .= '<b>Title : </b>'.$rows[0]->project_title.'<br>';
+        $out .= '<b>Proposed By : </b>'.$rows[0]->name_title.' '.$rows[0]->contributor_name.'<br>';
+        $out .= '<b>University : </b>'.$rows[0]->university.'<br>';
+        $out .= '<b>Reference : </b>'.$rows[0]->refernce.'<br>';
+        if($rows[0]->approval_status == 3)
+            $out .= '<b>Progress : </b>Completed<br>';
+        else 
+            $out .= '<b>Progress : </b>In Progress<br>';
+        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        }
+    return $out;
 }
 
 function fossee_profile_admin($form,&$formState) {
