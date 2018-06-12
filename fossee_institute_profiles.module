@@ -35,6 +35,10 @@ function fossee_institute_profiles_permission(){
         'access flowsheeting data'=>array(
             'title'=>t('View Flowsheeting data'),
             'description'=>t('Access Flowsheeting data')
+        ),
+        'autocomplete settings'=>array(
+            'title'=>array('Autocomplete Settings'),
+            'description'=>array('Access Autocomplete Settings')
         )
     );
 }
@@ -56,18 +60,16 @@ function fossee_institute_profiles_menu(){
         "title" => "Workshop",
         "page callback" => "fossee_institute_profiles_workshop",
         "access arguments" => array("view_workshop"),
-        'access callback'=>true,
+        // 'access callback'=>true,
         "type" => MENU_CALLBACK
     );
     $menu["lab-data"] = array(
         "title" => "",
         "page callback" => "fossee_get_data",
         'page arguments' => array(2),
-        "access arguments" => array(
-            "access lab data"
-        ),
+        "access arguments" => array("access lab data"),
         "type" => MENU_CALLBACK,
-        'access callback'=>true
+        // 'access callback'=>true
     );
     $menu["textbook"] = array(
         "title" => "",
@@ -75,21 +77,21 @@ function fossee_institute_profiles_menu(){
         'page arguments' => array(2),
         "access arguments" => array("access textbook data"),
         "type" => MENU_CALLBACK,
-        'access callback'=>true
+        // 'access callback'=>true
     );
     $menu['clg/autocomplete'] = array(
         'title' => 'Autocomplete for cities',
         'page callback' => 'fossee_clg_autocomplete',
         'access arguments' => array('use autocomplete'),  //or whatever permission makes sense
         'type' => MENU_CALLBACK,
-        'access callback'=>true
+        // 'access callback'=>true
     );
     $menu['admin/settings/cProfiles'] = array(
         'title' => 'College Autocomplete Settings',
         'description' => 'Edit The Autocomplete',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('fossee_profile_admin'),
-        'access arguments' => array('administer onthisdate settings'),
+        'access arguments' => array('autocomplete settings'),
         'type' => MENU_NORMAL_ITEM,
     );
     $menu['ckt'] = array(
@@ -97,14 +99,14 @@ function fossee_institute_profiles_menu(){
         'page callback'=>'fossee_profiles_ckt',
         'access arguments'=>array('access circuit data'),
         'type'=>MENU_CALLBACK,
-        'access callback'=>true
+        // 'access callback'=>true
     );
     $menu['flow'] = array(
         'title'=>'View Circuit Simulation',
         'page callback'=>'fossee_profiles_flow',
         'access arguments'=>array('access flowsheeting data'),
         'type'=>MENU_CALLBACK,
-        'access callback'=>true
+        // 'access callback'=>true
     );
     return $menu;
 }
