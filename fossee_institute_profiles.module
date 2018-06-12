@@ -1,7 +1,7 @@
 <?php
-// https://docs.google.com/document/d/1wZ4iLe92_w6UjKk_eC34A6x1X3NRC32ywiiYo0E6f04/edit?usp=sharing
 include_once('inc/insert.inc');
 
+// Implementation hook_permission()
 function fossee_institute_profiles_permission(){
     return array(
         "view_workshop" => array(
@@ -42,20 +42,24 @@ function fossee_institute_profiles_permission(){
         )
     );
 }
+// Implementation of hook_menu()
 function fossee_institute_profiles_menu(){
     $menu = array();
+    // The main searching Page
     $menu['cProfiles'] = array(
         'title'=>'College Profiles',
         'description'=>'College Profile',
         'page callback'=>'fossee_profiles_page',
         'access callback'=>true
     );
+    // Page to Display every college
     $menu['cProfiles/all'] = array(
         'title'=>'All Colleges',
         'description'=>'Display ALl Colleges',
         'page callback'=>'fossee_profiles_all_clg',
         'access callback'=>true
     );
+    // Page to view Workshop
     $menu['workshop/view'] = array(
         "title" => "Workshop",
         "page callback" => "fossee_institute_profiles_workshop",
@@ -63,6 +67,7 @@ function fossee_institute_profiles_menu(){
         // 'access callback'=>true,
         "type" => MENU_CALLBACK
     );
+    // Page to view Lab data
     $menu["lab-data"] = array(
         "title" => "",
         "page callback" => "fossee_get_data",
@@ -71,6 +76,7 @@ function fossee_institute_profiles_menu(){
         "type" => MENU_CALLBACK,
         // 'access callback'=>true
     );
+    // Page to view textbook companion
     $menu["textbook"] = array(
         "title" => "",
         "page callback" => "fossee_get_textbook",
@@ -79,6 +85,7 @@ function fossee_institute_profiles_menu(){
         "type" => MENU_CALLBACK,
         // 'access callback'=>true
     );
+    // this returs json of auto complete
     $menu['clg/autocomplete'] = array(
         'title' => 'Autocomplete for cities',
         'page callback' => 'fossee_clg_autocomplete',
@@ -86,6 +93,7 @@ function fossee_institute_profiles_menu(){
         'type' => MENU_CALLBACK,
         // 'access callback'=>true
     );
+    // The configuration Page to increase the autocomplete suggestion
     $menu['admin/settings/cProfiles'] = array(
         'title' => 'College Autocomplete Settings',
         'description' => 'Edit The Autocomplete',
@@ -94,6 +102,7 @@ function fossee_institute_profiles_menu(){
         'access arguments' => array('autocomplete settings'),
         'type' => MENU_NORMAL_ITEM,
     );
+    // Page to view eSim circuit simulation
     $menu['ckt'] = array(
         'title'=>'View Circuit Simulation',
         'page callback'=>'fossee_profiles_ckt',
@@ -101,8 +110,9 @@ function fossee_institute_profiles_menu(){
         'type'=>MENU_CALLBACK,
         // 'access callback'=>true
     );
+    // Page to view Flowsheeting project
     $menu['flow'] = array(
-        'title'=>'View Circuit Simulation',
+        'title'=>'View Flowsheeting Project',
         'page callback'=>'fossee_profiles_flow',
         'access arguments'=>array('access flowsheeting data'),
         'type'=>MENU_CALLBACK,
@@ -111,50 +121,69 @@ function fossee_institute_profiles_menu(){
     return $menu;
 }
 
+// Page Callback to display all colleges
 function fossee_profiles_all_clg(){
-    $out = '';
-    $all = 0;
-    $s = 0;
-    if(isset($_GET['page']))
-        $s = (int)$_GET['page'] - 1;
+    $out = ''; // output html
+    $all = 0; // All counts
+    $s = 0; // Current Page index
+    // Get the Page Index
+    if(isset($_GET['page'])) $s = (int)$_GET['page'] - 1;
     if($s<0) $s = 0;
-    if($s > 31) return '<b>Error Page Not Found</b>';
-    db_set_active(); // Set the Default
+
+    db_set_active(); // Set the Default Database
+    // Get the no of total colleges
     $query = db_query('SELECT count(name) as count FROM clg_names');
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
     $all = (int)$rows[0]->count;
+    // if the Index given is greater than total display error
+    if($s > round($all/25)-1) return '<b>Error Page Not Found</b>';
+    /// Add the css
     drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
+    // Get 25 rows 
     $query = db_query('SELECT name FROM clg_names ORDER BY name ASC LIMIT 25 OFFSET '.($s*25));
     $rows = $query->fetchAll();
     $i = 1;
+    // Diplay each college name with their link
     foreach($rows as $row){
         $out .= '<a href="'.$Fpage.'cProfiles?c='.str_replace(' ','%20', $row->name).'" target="_blank">'.$i.' > '.$row->name.'</a><br>';
         $i++;
     }
+    // Display the front Page
     $out .= '<div id="theRow"><a href="'.$Fpage.'cProfiles/all?page=1">First</a>';
+    // Display the Prev Button if it is not the first page
     if($s > 0)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s-1).'">&lt;</a>';
+    // Display Next Five links 
     for($j=1;$j<=5;$j++){
         if($s+$j+1 <= 32)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+$j+1).'">'.($s+$j+1).'</a>';
     }
+    // Display Next Button if it is not the last page
     if($s < round($all/25)-1)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+1).'">&gt;</a>';
+    //Display the last Page
     $out .= '<a href="'.$Fpage.'cProfiles/all?page=32">Last</a></div>';
     return $out;
 }
 
+// Page callback to display the flowsheeting projects
 function fossee_profiles_flow($id = 0){
-    $out = '';
-    $query = db_query('SELECT * FROM dwsim_2015.dwsim_flowsheet_proposal WHERE id='.$id);
+    $out = ''; // output html
+    // Get data from the flowsheeting database
+    $query = db_query('SELECT id,approval_status,project_title,name_title,contributor_name,university,reference FROM dwsim_2015.dwsim_flowsheet_proposal WHERE id='.$id);
     $rows = $query->fetchAll();
+    // Count the no of rows if rows exist then display data
     if(count($rows) > 0){
+        // Add the css File
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-        $out .= '<b>Title : </b>'.$rows[0]->project_title.'<br>';
+        if(!IS_EMPTY($rows[0]->project_title)) 
+            $out .= '<b>Title : </b>'.$rows[0]->project_title.'<br>';
         $out .= '<b>Proposed By : </b>'.$rows[0]->name_title.' '.$rows[0]->contributor_name.'<br>';
-        $out .= '<b>University : </b>'.$rows[0]->university.'<br>';
-        $out .= '<b>Reference : </b>'.$rows[0]->refernce.'<br>';
+        if(!IS_EMPTY($rows[0]->university))
+            $out .= '<b>University : </b>'.$rows[0]->university.'<br>';
+        if(!IS_EMPTY($rows[0]->reference))
+            $out .= '<b>Reference : </b>'.$rows[0]->reference.'<br>';
         if($rows[0]->approval_status == 3)
             $out .= '<b>Progress : </b>Completed<br>';
         else 
@@ -163,25 +192,36 @@ function fossee_profiles_flow($id = 0){
         }
     return $out;
 }
+
+// College Profile callback
 function fossee_profiles_page(){
+    // Add the js and css
     drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
     drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
 
+    // Get the college name
     if(isset($_GET['c']))
-    return fossee_institute_profiles_display($_GET['c']);
-
+        return fossee_institute_profiles_display($_GET['c']);
+    // Return the form
     return drupal_get_form('fossee_profiles_form');
 }
+
+// Page callback for esim circuit simulation page
 function fossee_profiles_ckt($id = 0){
-    $out = '';
-    $query = db_query('SELECT * FROM esim.esim_circuit_simulation_proposal WHERE id='.$id);
+    $out = ''; // output HTML
+    // Get circuit simulation data
+    $query = db_query('SELECT project_title,name_title,contributor_name,university,refernce,approval_status FROM esim.esim_circuit_simulation_proposal WHERE id='.$id);
     $rows = $query->fetchAll();
     if(count($rows) > 0){
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-        $out .= '<b>Title : </b>'.$rows[0]->project_title.'<br>';
-        $out .= '<b>Proposed By : </b>'.$rows[0]->name_title.' '.$rows[0]->contributor_name.'<br>';
-        $out .= '<b>University : </b>'.$rows[0]->university.'<br>';
-        $out .= '<b>Reference : </b>'.$rows[0]->refernce.'<br>';
+        if(!IS_EMPTY($rows[0]->project_title))
+            $out .= '<b>Title : </b>'.$rows[0]->project_title.'<br>';
+        if(!IS_EMPTY($rows[0]->contributor_name))
+            $out .= '<b>Proposed By : </b>'.$rows[0]->name_title.' '.$rows[0]->contributor_name.'<br>';
+        if(!IS_EMPTY($rows[0]->university))
+            $out .= '<b>University : </b>'.$rows[0]->university.'<br>';
+        if(!IS_EMPTY($rows[0]->refernce))
+            $out .= '<b>Reference : </b>'.$rows[0]->refernce.'<br>';
         if($rows[0]->approval_status == 3)
             $out .= '<b>Progress : </b>Completed<br>';
         else 
@@ -191,6 +231,7 @@ function fossee_profiles_ckt($id = 0){
     return $out;
 }
 
+// Admin Page callback
 function fossee_profile_admin($form,&$formState) {
     $form['desp'] = array('#markup'=>'<h1>Increase The Autocomplete Suggestion</h1>');
     $form['update_autocomplete'] = array(
@@ -203,6 +244,8 @@ function fossee_profile_admin($form,&$formState) {
     );
     return system_settings_form($form);
 }
+
+// Function Updates the database
 function fossee_profile_update_autocomplete(){
     InsertData();
     drupal_set_message('Done');
@@ -211,7 +254,7 @@ function fossee_profile_update_autocomplete(){
 function fossee_clg_autocomplete($str){
     $matches = array();
     db_query("USE fossee_new");
-    $query = db_query('SELECT * FROM clg_names WHERE name LIKE :args LIMIT 25;',array(
+    $query = db_query('SELECT name FROM clg_names WHERE name LIKE :args LIMIT 25;',array(
         ':args'=>'%'.$str.'%'
     ));
     $rows = $query->fetchAll(); 
@@ -221,9 +264,10 @@ function fossee_clg_autocomplete($str){
     return drupal_json_output($matches); // return the data in json format
 }
 
+// Page Callback for textbook data
 function fossee_get_textbook($id = 0,$type = ''){
     $out = 'No Data Found';
-    $qstr = 'SELECT * FROM '.$type.'.textbook_companion_proposal po LEFT JOIN '.$type.'.textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
+    $qstr = 'SELECT id,book,author,publisher,edition,year,isbn,full_name,course,branch,university FROM '.$type.'.textbook_companion_proposal po LEFT JOIN '.$type.'.textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     if(count($rows) > 0){
@@ -235,20 +279,32 @@ function fossee_get_textbook($id = 0,$type = ''){
         else if($type == 'cfd_2015') $ltype = 'OpenFOAM';
         else $ltype = 'Others';
         
+        // Display data
         $out = '<div id="text-data"><label>About The Book</label><br>';
-        $out .= '<b>Book : </b>'.$rows[0]->book.'<br>';
+        if(!IS_EMPTY($rows[0]->book))
+            $out .= '<b>Book : </b>'.$rows[0]->book.'<br>';
         $out .= '<b>Type : </b>'.$ltype.'<br>';
-        $out .= '<b>Author : </b>'.$rows[0]->author.'<br>';
-        $out .= '<b>Publisher : </b>'.$rows[0]->publisher.'<br>';
-        $out .= '<b>Edition : </b>'.$rows[0]->edition.'<br>';
-        $out .= '<b>Year : </b>'.$rows[0]->year.'<br>';
-        $out .= '<b>ISBN : </b>'.$rows[0]->isbn.'<br>';
+        if(!IS_EMPTY($rows[0]->author))
+            $out .= '<b>Author : </b>'.$rows[0]->author.'<br>';
+        if(!IS_EMPTY($rows[0]->publisher))
+            $out .= '<b>Publisher : </b>'.$rows[0]->publisher.'<br>';
+        if(!IS_EMPTY($rows[0]->edition))
+             $out .= '<b>Edition : </b>'.$rows[0]->edition.'<br>';
+        if(!IS_EMPTY($rows[0]->year))
+            $out .= '<b>Year : </b>'.$rows[0]->year.'<br>';
+        if(!IS_EMPTY($rows[0]->isbn))
+            $out .= '<b>ISBN : </b>'.$rows[0]->isbn.'<br>';
         $out .= '<label>Proposed By</label><br>';
-        $out .= '<b>Name : </b>'.$rows[0]->full_name.'<br>';
-        $out .= '<b>Course : </b>'.$rows[0]->course.'<br>';
-        $out .= '<b>Branch : </b>'.$rows[0]->branch.'<br>';
-        $out .= '<b>University : </b>'.$rows[0]->university.'<br></div>';
+        if(!IS_EMPTY($rows[0]->full_name))
+            $out .= '<b>Name : </b>'.$rows[0]->full_name.'<br>';
+        if(!IS_EMPTY($rows[0]->course))
+            $out .= '<b>Course : </b>'.$rows[0]->course.'<br>';
+        if(!IS_EMPTY($rows[0]->branch))
+            $out .= '<b>Branch : </b>'.$rows[0]->branch.'<br>';
+        if(!IS_EMPTY($rows[0]->university))
+            $out .= '<b>University : </b>'.$rows[0]->university.'<br></div>';
     }
+    // Display the main Website link
     if($type == 'scilab')
         $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
     if($type == 'esim')
@@ -256,13 +312,15 @@ function fossee_get_textbook($id = 0,$type = ''){
     return $out;
 }
 
+// Page callback to get lab data
 function fossee_get_data($id = 0,$type = ''){
-    $out = '';
+    $out = ''; // Output HTML
     $qstr = 'SELECT * FROM '.$type.'.lab_migration_proposal WHERE id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     $rl = count($rows);
     if($rl > 0){
+        // Add Css
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
         if($type == 'scilab') $ltype = 'Scilab';
         else if($type == 'esim') $ltype = 'eSim';
@@ -270,17 +328,25 @@ function fossee_get_data($id = 0,$type = ''){
         else if($type == 'openmodelica') $ltype = 'Open Modelica';
         else if($type == 'cfd_2015') $ltype = 'OpenFOAM';
         else $ltype = 'Others';
-
+        // Display Data in Table format
         $out = '<table class="table table-bordered table-hover">';
-        $out .= '<tr><td><b>Title</b></td><td>'.$rows[0]->lab_title.'</td></tr>';        
+        if(!IS_EMPTY($rows[0]->lab_title))
+            $out .= '<tr><td><b>Title</b></td><td>'.$rows[0]->lab_title.'</td></tr>';        
         $out .= '<tr><td><b>Lab Type</b></td><td>'.$ltype.'</td></tr>';        
-        $out .= '<tr><td><b>By</b></td><td>'.$rows[0]->name_title.' '.$rows[0]->name.'</td></tr>';        
-        $out .= '<tr><td><b>Department</b></td><td>'.$rows[0]->department.'</td></tr>';        
-        $out .= '<tr><td><b>University</b></td><td>'.$rows[0]->university.'</td></tr>';        
-        $out .= '<tr><td><b>City</b></td><td>'.$rows[0]->city.'</td></tr>';
-        $out .= '<tr><td><b>Pin Code</b></td><td>'.$rows[0]->pincode.'</td></tr>';        
-        $out .= '<tr><td><b>State</b></td><td>'.$rows[0]->state.'</td></tr>';        
-        $out .= '<tr><td><b>Country</b></td><td>'.$rows[0]->country.'</td></tr>'; 
+        if(!IS_EMPTY($rows[0]->name))
+            $out .= '<tr><td><b>By</b></td><td>'.$rows[0]->name_title.' '.$rows[0]->name.'</td></tr>';        
+        if(!IS_EMPTY($rows[0]->department))
+            $out .= '<tr><td><b>Department</b></td><td>'.$rows[0]->department.'</td></tr>';        
+        if(!IS_EMPTY($rows[0]->university))
+            $out .= '<tr><td><b>University</b></td><td>'.$rows[0]->university.'</td></tr>';        
+        if(!IS_EMPTY($rows[0]->city))
+            $out .= '<tr><td><b>City</b></td><td>'.$rows[0]->city.'</td></tr>';
+        if(!IS_EMPTY($rows[0]->pincode))
+            $out .= '<tr><td><b>Pin Code</b></td><td>'.$rows[0]->pincode.'</td></tr>';        
+        if(!IS_EMPTY($rows[0]->state))
+            $out .= '<tr><td><b>State</b></td><td>'.$rows[0]->state.'</td></tr>';        
+        if(!IS_EMPTY($rows[0]->country))
+            $out .= '<tr><td><b>Country</b></td><td>'.$rows[0]->country.'</td></tr>'; 
         
         if($rows[0]->approval_status == 3)     
             $out .= '<tr><td><b>Progress</b></td><td>Completed</td></tr>';      
@@ -288,7 +354,7 @@ function fossee_get_data($id = 0,$type = ''){
             $out .= '<tr><td><b>Progress</b></td><td>Under Observation</td></tr>';
         else
             $out .= '<tr><td><b>Progress</b></td><td>In Progress</td></tr>';
-        
+        // Display Solution Provider Details
         if($rows[0]->solution_provider_name != ''){
             $out .= '<tr><td><b>Solution Provider Name</b></td><td>'.$rows[0]->solution_provider_name_title.' '.$rows[0]->solution_provider_name.'</td></tr>';      
             $out .= '<tr><td><b>Solution Provider Department</b></td><td>'.$rows[0]->solution_provider_department.'</td></tr>';      
@@ -305,13 +371,15 @@ function fossee_get_data($id = 0,$type = ''){
     return $out;
 }
 
+// Page callback for Workshop data view
 function fossee_institute_profiles_workshop($wid = 0){
     $query = db_query('SELECT w_name,startdate,enddate,no_of_participant,venue,event_link,body FROM workshop WHERE w_id = :args',array(
         ':args'=>$wid
     ));
     $rows = $query->fetchAll();
-    $out = '<b>NO Data Find!</b>';
+    $out = '<b>NO Data Find!</b>'; // Output HTML
     if(count($rows) > 0){
+        // Add js and CSS
         drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
         
@@ -330,12 +398,13 @@ function fossee_institute_profiles_workshop($wid = 0){
             $out .= '<tr><td><b>Events Website</b></td><td>'.$rows[0]->event_link.'</td></tr>';    
         if(!IS_EMPTY($rows[0]->body))
             $out .= '<tr><td><b>Details</b></td><td>'.$rows[0]->body.'</td></tr>';
-        $query = db_query('SELECT * FROM workshop_images WHERE w_id = :args',array(
+        $query = db_query('SELECT w_id,path FROM workshop_images WHERE w_id = :args',array(
             ':args'=>$wid
         ));
         $rows = $query->fetchAll();
         $rl = count($rows);
         $Fpage = drupal_get_normal_path(url()); // Get the front url
+        // DIsplay Images
         if($rl > 0)     $out .= '<tr><td><b>Images</b></td><td>';
         foreach($rows as $row){
             if(strpos($row->path,'events_images') !== false)
@@ -345,6 +414,7 @@ function fossee_institute_profiles_workshop($wid = 0){
         if($rl > 0)
             $out .= '</td></tr>';
         $out .= '</table>';
+        // Image viewbox
         if($rl > 0)$out .= '<div id="VIewBox"></div>';
     }
     return $out;
@@ -494,6 +564,7 @@ function fossee_institute_profiles_display($val){
         ':args'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
+    // circuit simulation links
     foreach($rows as $row){
         $ckt .= '<a href="'.$Fpage.'ckt/'.$row->id.'">'.$i.' > '.$row->project_title.'</a><br>';
         $i++;
@@ -504,6 +575,7 @@ function fossee_institute_profiles_display($val){
         ':args'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
+    // Flowsheeting project links
     foreach($rows as $row){
         $flow .= '<a href="'.$Fpage.'flow/'.$row->id.'">'.$i.' > '.$row->project_title.'</a><br>';
         $i++;
@@ -513,12 +585,13 @@ function fossee_institute_profiles_display($val){
     if(IS_EMPTY($state))    $state = "----";
     if(IS_EMPTY($city))     $city = "----";
     if(IS_EMPTY($country))  $country = "----";
-    if(IS_EMPTY($lab)) $lab =    '<b>No Lab Migration Done!</b>';
-    if(IS_EMPTY($text)) $text =  '<b>No Textbook Companion Done!</b>';
-    if(IS_EMPTY($work)) $work =  '<b>No Workshop Done!</b>';
-    if(IS_EMPTY($ckt)) $ckt =    '<b>No Circuit Simulation Done!</b>';
-    if(IS_EMPTY($flow)) $flow =  '<b>No Flowsheeting Projects Done!</b>';
-    if(IS_EMPTY($caseS)) $caseS ='<b>No Case Study Done!</b>';
+    // If data is empty display default
+    if(IS_EMPTY($lab))      $lab =      '<b>No Lab Migration Done!</b>';
+    if(IS_EMPTY($text))     $text =     '<b>No Textbook Companion Done!</b>';
+    if(IS_EMPTY($work))     $work =     '<b>No Workshop Done!</b>';
+    if(IS_EMPTY($ckt))      $ckt =      '<b>No Circuit Simulation Done!</b>';
+    if(IS_EMPTY($flow))     $flow =     '<b>No Flowsheeting Projects Done!</b>';
+    if(IS_EMPTY($caseS))    $caseS =    '<b>No Case Study Done!</b>';
     
     $out .= '<h1>'.$val.'</h1>';
     $out .= '<h3>( <b>Country : </b>'.$country.'<b> State :</b>'.$state.'<b> City : </b>'.$city.' )</h1>';
@@ -545,13 +618,15 @@ function IS_EMPTY($val){
 }
  //  College Searching Form
 function fossee_profiles_form($form,&$formState){
+    // Searchbox
     $form['clg'] = array(
         '#type' => 'textfield',
         '#title' => '',
-        '#maxlength' => 70,
+        '#maxlength' => 60,
         '#prefix' => '<div class="container-inline">',
         '#autocomplete_path' => 'clg/autocomplete'
     );
+    // Search button
     $form['submit'] = array(
         '#type'=>'submit',
         '#value'=>'Q',
@@ -562,8 +637,10 @@ function fossee_profiles_form($form,&$formState){
     return $form;
 }
 
+// Search callback
 function fossee_search($form,&$formState){
-    if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 3){    
+    if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 3){
+        // Display data    
         $commands[] = ajax_command_invoke(NULL, 'DisplayData', array(fossee_institute_profiles_display($formState['values']['clg'])));
         return array('#type' => "ajax", '#commands' => $commands);
     }else{

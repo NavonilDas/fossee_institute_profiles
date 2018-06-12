@@ -1,4 +1,5 @@
 <?php
+ // Function to Insert data if data does not exist in the table
 function InsertData(){
     db_query('INSERT INTO fossee_new.clg_names SELECT l.university,l.city,l.state,l.country FROM scilab.lab_migration_proposal l WHERE l.university NOT IN (SELECT c.name FROM fossee_new.clg_names c) GROUP BY l.university');
     db_query('INSERT INTO fossee_new.clg_names SELECT l.university,l.city,l.state,l.country FROM esim.lab_migration_proposal l WHERE l.university NOT IN (SELECT c.name FROM fossee_new.clg_names c) GROUP BY l.university');
