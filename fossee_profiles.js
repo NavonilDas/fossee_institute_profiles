@@ -35,3 +35,9 @@ function ChangeTab(id){
     document.getElementById('thedata-'+id).style.display = 'block';
 
 }
+
+function Search(e,h){
+    if(e.keyCode == 13){
+        window.location = "?c="+h.value.replace(" ","%20");
+    }
+}

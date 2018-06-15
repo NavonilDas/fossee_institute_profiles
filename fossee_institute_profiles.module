@@ -624,7 +624,10 @@ function fossee_profiles_form($form,&$formState){
         '#title' => '',
         '#maxlength' => 60,
         '#prefix' => '<div class="container-inline">',
-        '#autocomplete_path' => 'clg/autocomplete'
+        '#autocomplete_path' => 'clg/autocomplete',
+        '#attributes'=>array(
+            'onkeyup'=>'Search(event,this)'
+        )
     );
     // Search button
     $form['submit'] = array(
