@@ -32,8 +32,8 @@ Displays details of workshops done by a college by respective images.
 
 ### Circuit Simulation
 Display circuit simulation details by a college.
-![Workshop](screenshot/circuit.png)
+![Circuit Simulation](screenshot/circuit.png)
 
 ### Flowsheeting Project
 Display Flowsheeting Project by a college.
-![Workshop](screenshot/flow.png)
+![Flowsheeting Projects](screenshot/flowsheeting.png)
