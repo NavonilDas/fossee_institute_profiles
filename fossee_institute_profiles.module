@@ -144,11 +144,16 @@ function fossee_profiles_all_clg(){
     $query = db_query('SELECT name FROM clg_names ORDER BY name ASC LIMIT 25 OFFSET '.($s*25));
     $rows = $query->fetchAll();
     $i = 1;
+    $out .= '<table class="table table-bordered table-hover">';
     // Diplay each college name with their link
     foreach($rows as $row){
-        $out .= '<a href="'.$Fpage.'cProfiles?c='.str_replace(' ','%20', $row->name).'" target="_blank">'.$i.' > '.$row->name.'</a><br>';
+        $out .= '<tr>';
+        $out .= '<td>'.$i.'</td>';
+        $out .= '<td><a href="'.$Fpage.'cProfiles?c='.str_replace(' ','%20', $row->name).'" target="_blank">'.$row->name.'</a></td>';
         $i++;
+        $out .= '</tr>';
     }
+    $out.='</table>';
     // Display the front Page
     $out .= '<div id="theRow"><a href="'.$Fpage.'cProfiles/all?page=1">First</a>';
     // Display the Prev Button if it is not the first page
@@ -449,11 +454,14 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
-
+    $work .= '<table class="table table-bordered table-hover">';
     foreach($rows as $row){
-        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$i.' > '.$row->w_name.'</a><br>';
+        $work .= '<tr><td>'.$i.'</td><td>';
+        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$row->w_name.'</a><br>';
         $i++;
+        $work .= '</td></tr>';
     }
+    $work .= '</table>';
     /************************************ Lab Migration Proposal ***********************/
     $i = 1;
     // Get scilab Lab title,id
@@ -461,9 +469,12 @@ function fossee_institute_profiles_display($val){
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
+    $lab .= '<table class="table table-bordered table-hover">';
     foreach($rows as $row){
-        $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        $lab .= '<tr><td>'.$i.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
         $i++;
+        $lab .= '</td></tr>';
     }
     // Get esim lab id,title
     $query = db_query('SELECT id,lab_title FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(
@@ -471,7 +482,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        $lab .= '<tr><td>'.$i.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
         $i++;
     }
     // Get openmodelica lab id,title
@@ -480,7 +493,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        $lab .= '<tr><td>'.$i.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
         $i++;
     }
     // Get dwsim_2015 lab id,title
@@ -489,7 +504,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        $lab .= '<tr><td>'.$i.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
         $i++;
     }
     // Get cfd_2015 lab id,title
@@ -498,19 +515,25 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->lab_title.'</a><br>';
+        $lab .= '<tr><td>'.$i.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
         $i++;
     }
-
+    $lab .= '</table>';
+    if($i <= 1) $lab = '';
     /***************************** Text book ********************* */
     $i = 1;
+    $text .= '<table class="table table-bordered table-hover">';
     // Get scilab book,author,id
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<tr><td>'.$i.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
         $i++;
     }
     // Get esim book,id,author
@@ -519,7 +542,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<tr><td>'.$i.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
         $i++;
     }
     // Get dwsim_2015 book,id,author
@@ -528,7 +553,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<tr><td>'.$i.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
         $i++;
     }
     // Get openmodelica id,book,author
@@ -537,7 +564,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$Fpage.'/textbook/openmodelica/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<tr><td>'.$i.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/openmodelica/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
         $i++;
     }
     // Get cfd_2015 id,book,author
@@ -546,7 +575,9 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<tr><td>'.$i.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
         $i++;
     }
     // Get or_fossee id,author,book
@@ -555,31 +586,45 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$i.' > '.$row->book.' By '.$row->author.'</a><br>';
+        $text .= '<tr><td>'.$i.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
         $i++;
     }
+    $text .= '</table>';
+    if($i <= 1) $text = '';
     /*********************************** CIrcuit Simulation ******************/
     $i = 1;
+    $ckt = '<table class="table table-bordered table-hover">';
     $query = db_query('SELECT id,project_title FROM esim.esim_circuit_simulation_proposal WHERE university LIKE :args',array(
         ':args'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
     // circuit simulation links
     foreach($rows as $row){
-        $ckt .= '<a href="'.$Fpage.'ckt/'.$row->id.'" target="_blank">'.$i.' > '.$row->project_title.'</a><br>';
+        $ckt .= '<tr><td>'.$i.'</td><td>';
+        $ckt .= '<a href="'.$Fpage.'ckt/'.$row->id.'" target="_blank">'.$row->project_title.'</a>';
+        $ckt .= '</td></tr>';
         $i++;
     }
+    $ckt .= '</table>';
+    if($i <= 1) $ckt = '';
     /*********************************** Flowsheeting Projects ******************/
     $i = 1;
+    $flow .= '<table class="table table-bordered table-hover">';
     $query = db_query('SELECT id,project_title From dwsim_2015.dwsim_flowsheet_proposal WHERE university LIKE :args',array(
         ':args'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
     // Flowsheeting project links
     foreach($rows as $row){
-        $flow .= '<a href="'.$Fpage.'flow/'.$row->id.'" target="_blank">'.$i.' > '.$row->project_title.'</a><br>';
+        $flow .= '<tr><td>'.$i.'</td><td>';
+        $flow .= '<a href="'.$Fpage.'flow/'.$row->id.'" target="_blank">'.$row->project_title.'</a><br>';
+        $flow .= '</td></tr>';
         $i++;
     }
+    $flow .= '</table>';
+    if($i <= 1) $flow = '';
     /*********************************** Display Data ******************/
     // Check wether state,city,country is empty
     if(IS_EMPTY($state))    $state = "----";
