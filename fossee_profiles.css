@@ -96,3 +96,15 @@
     color: #fff;
     margin:1px;
 }
+input[elem-style="SearchButton"],input[elem-style="ResetButton"]{
+    margin:2px;
+    background: orangered !important;
+    background-image: none !important;
+    border:none !important;
+    color: #fff !important;
+    font-size: 1.2em;
+    text-shadow: none !important;
+}
+input[elem-style="SearchButton"]:hover,input[elem-style="ResetButton"]:hover{
+    background: orange !important;
+}

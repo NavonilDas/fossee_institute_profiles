@@ -694,7 +694,10 @@ function fossee_profiles_form($form,&$formState){
     $form['submit'] = array(
         '#type'=>'submit',
         '#value'=>'Q',
-        '#ajax'=>array('callback'=>'fossee_search')
+        '#ajax'=>array('callback'=>'fossee_search'),
+        '#attributes'=>array(
+            'elem-style'=>'SearchButton'
+        )
     );
     $form['reset'] = array(
         '#type'=>'submit',
@@ -703,6 +706,9 @@ function fossee_profiles_form($form,&$formState){
         '#submit'=>array(
             'fossee_profiles_form_reset'
         ),
+        '#attributes'=>array(
+            'elem-style'=>'ResetButton'
+        )
     );
     $form['divs'] = array('#markup'=>'<div id="cProfile" style="display:none"></div>');
     return $form;
