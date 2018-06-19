@@ -69,7 +69,7 @@ function fossee_institute_profiles_menu(){
     );
     // Page to view Lab data
     $menu["lab-data"] = array(
-        "title" => "",
+        "title" => "Lab Migration",
         "page callback" => "fossee_get_data",
         'page arguments' => array(2),
         "access arguments" => array("access lab data"),
@@ -78,7 +78,7 @@ function fossee_institute_profiles_menu(){
     );
     // Page to view textbook companion
     $menu["textbook"] = array(
-        "title" => "",
+        "title" => "Textbook Companion",
         "page callback" => "fossee_get_textbook",
         'page arguments' => array(2),
         "access arguments" => array("access textbook data"),
@@ -136,8 +136,9 @@ function fossee_profiles_all_clg(){
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
     $all = (int)$rows[0]->count;
+    $last = round($all/25);
     // if the Index given is greater than total display error
-    if($s > round($all/25)-1) return '<b>Error Page Not Found</b>';
+    if($s > $last-1) return '<b>Error Page Not Found</b>';
     /// Add the css
     drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
     // Get 25 rows 
@@ -148,8 +149,8 @@ function fossee_profiles_all_clg(){
     // Diplay each college name with their link
     foreach($rows as $row){
         $out .= '<tr>';
-        $out .= '<td>'.$i.'</td>';
-        $out .= '<td><a href="'.$Fpage.'cProfiles?c='.str_replace(' ','%20', $row->name).'" target="_blank">'.$row->name.'</a></td>';
+        $out .= '<td>'.($s*25+$i).'</td>';
+        $out .= '<td><a href="'.$Fpage.'cProfiles?c='.str_replace(' ','%20', $row->name).'" >'.$row->name.'</a></td>';
         $i++;
         $out .= '</tr>';
     }
@@ -158,15 +159,15 @@ function fossee_profiles_all_clg(){
     $out .= '<div id="theRow"><a href="'.$Fpage.'cProfiles/all?page=1">First</a>';
     // Display the Prev Button if it is not the first page
     if($s > 0)
-        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s-1).'">&lt;</a>';
+        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s).'">&lt;</a>';
     // Display Next Five links 
     for($j=1;$j<=5;$j++){
-        if($s+$j+1 <= 32)
+        if($s+$j+1 <= $last)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+$j+1).'">'.($s+$j+1).'</a>';
     }
     // Display Next Button if it is not the last page
-    if($s < round($all/25)-1)
-        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+1).'">&gt;</a>';
+    if($s < $last-1)
+        $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+2).'">&gt;</a>';
     //Display the last Page
     $out .= '<a href="'.$Fpage.'cProfiles/all?page=32">Last</a></div>';
     return $out;
@@ -175,9 +176,11 @@ function fossee_profiles_all_clg(){
 // Page callback to display the flowsheeting projects
 function fossee_profiles_flow($id = 0){
     $out = ''; // output html
+    db_set_active('DWSIM');
     // Get data from the flowsheeting database
-    $query = db_query('SELECT id,approval_status,project_title,name_title,contributor_name,university,reference FROM dwsim_2015.dwsim_flowsheet_proposal WHERE id='.$id);
+    $query = db_query('SELECT id,approval_status,project_title,name_title,contributor_name,university,reference FROM dwsim_flowsheet_proposal WHERE id='.$id);
     $rows = $query->fetchAll();
+    $Fpage = drupal_get_normal_path(url());
     // Count the no of rows if rows exist then display data
     if(count($rows) > 0){
         // Add the css File
@@ -193,7 +196,8 @@ function fossee_profiles_flow($id = 0){
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+        $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
     return $out;
 }
@@ -215,8 +219,10 @@ function fossee_profiles_page(){
 function fossee_profiles_ckt($id = 0){
     $out = ''; // output HTML
     // Get circuit simulation data
+    db_set_active('eSim');
     $query = db_query('SELECT project_title,name_title,contributor_name,university,reference,approval_status FROM esim.esim_circuit_simulation_proposal WHERE id='.$id);
     $rows = $query->fetchAll();
+    $Fpage = drupal_get_normal_path(url());
     if(count($rows) > 0){
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
         if(!IS_EMPTY($rows[0]->project_title))
@@ -231,7 +237,8 @@ function fossee_profiles_ckt($id = 0){
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+        $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
     return $out;
 }
@@ -258,7 +265,7 @@ function fossee_profile_update_autocomplete(){
 // Function returns json of autocomplete data
 function fossee_clg_autocomplete($str){
     $matches = array();
-    db_query("USE fossee_new");
+    db_set_active();
     $query = db_query('SELECT name FROM clg_names WHERE name LIKE :args LIMIT 25;',array(
         ':args'=>'%'.$str.'%'
     ));
@@ -275,6 +282,7 @@ function fossee_get_textbook($id = 0,$type = ''){
     $qstr = 'SELECT * FROM '.$type.'.textbook_companion_proposal po LEFT JOIN '.$type.'.textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
+    $Fpage = drupal_get_normal_path(url());
     if(count($rows) > 0){
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
         if($type == 'scilab') $ltype = 'Scilab';
@@ -311,9 +319,10 @@ function fossee_get_textbook($id = 0,$type = ''){
     }
     // Display the main Website link
     if($type == 'scilab')
-        $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        $out .= '<a href="http://scilab.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
     if($type == 'esim')
-        $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';                
+        $out .= '<a href="http://esim.fossee.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+    $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';    
     return $out;
 }
 
@@ -324,6 +333,7 @@ function fossee_get_data($id = 0,$type = ''){
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     $rl = count($rows);
+    $Fpage = drupal_get_normal_path(url());
     if($rl > 0){
         // Add Css
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
@@ -368,10 +378,11 @@ function fossee_get_data($id = 0,$type = ''){
         $out .= '</table>';
         if($rows[0]->approval_status == 3){
             if($type == 'scilab')
-                $out .= '<a href="http://scilab.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+                $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
             if($type == 'esim')
-                $out .= '<a href="http://esim.fossee.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';                
+                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';                
         }
+        $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
     }
     return $out;
 }
@@ -383,6 +394,7 @@ function fossee_institute_profiles_workshop($wid = 0){
     ));
     $rows = $query->fetchAll();
     $out = '<b>NO Data Find!</b>'; // Output HTML
+    $Fpage = drupal_get_normal_path(url());
     if(count($rows) > 0){
         // Add js and CSS
         drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
@@ -419,6 +431,8 @@ function fossee_institute_profiles_workshop($wid = 0){
         if($rl > 0)
             $out .= '</td></tr>';
         $out .= '</table>';
+        $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
+
         // Image viewbox
         if($rl > 0)$out .= '<div id="VIewBox"></div>';
     }
@@ -432,12 +446,18 @@ function fossee_institute_profiles_display($val){
     $city = ''; // City of the college
     $work = ''; // Worshop html
     $text = ''; // Text book html
-    $i = 1; // Increnet variable
     $ckt = ''; // Circuit Simulation Html
     $flow = ''; // Flowsheeting HTMl
     $caseS = ''; // Case Study HTML
+
+    $li = 1;
+    $ci = 1;
+    $ti = 1;
+    $wi = 1;
+    $fi = 1;
+    db_set_active();
     // Get City,State,Country of a College
-    $query = db_query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(
+    $query = db_query('SELECT city,state,country FROM clg_names WHERE name = :args',array(
         ':args'=>$val
     ));
     $row = $query->fetchAll();
@@ -454,177 +474,174 @@ function fossee_institute_profiles_display($val){
     ));
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
-    $work .= '<table class="table table-bordered table-hover">';
     foreach($rows as $row){
-        $work .= '<tr><td>'.$i.'</td><td>';
-        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" target="_blank">'.$row->w_name.'</a><br>';
-        $i++;
+        $work .= '<tr><td>'.$wi.'</td><td>';
+        $work .= '<a href="'.$Fpage.'workshop/view/'.$row->w_id.'" >'.$row->w_name.'</a><br>';
+        $wi++;
         $work .= '</td></tr>';
     }
-    $work .= '</table>';
-    /************************************ Lab Migration Proposal ***********************/
-    $i = 1;
-    // Get scilab Lab title,id
-    $query = db_query('SELECT id,lab_title FROM scilab.lab_migration_proposal WHERE university LIKE :arg',array(
+    /************************************ Scilab *************/
+    db_set_active('Scilab');
+    // Get  Lab title,id
+    $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
-    $lab .= '<table class="table table-bordered table-hover">';
     foreach($rows as $row){
-        $lab .= '<tr><td>'.$i.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
-        $i++;
+        $lab .= '<tr><td>'.$li.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/scilab/'.$row->id.'" >'.$row->lab_title.'</a>';
+        $li++;
         $lab .= '</td></tr>';
     }
+    // Get book,author,id
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<tr><td>'.$ti.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
+        $ti++;
+    }
+    /**************************** openmodelica */
+    db_set_active('OpenModelica');
+    // Get openmodelica lab id,title
+    $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $lab .= '<tr><td>'.$li.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" >'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
+        $li++;
+    }
+        // Get id,book,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<tr><td>'.$ti.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/openmodelica/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
+        $ti++;
+    }
+
+    /*********************************************Dwsim */
+    db_set_active('DWSIM');
+    // Get lab id,title
+    $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $lab .= '<tr><td>'.$li.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" >'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
+        $li++;
+    }
+        // Get book,id,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<tr><td>'.$ti.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
+        $ti++;
+    }
+    // Flowsheeting projects
+    $query = db_query('SELECT id,project_title From dwsim_flowsheet_proposal WHERE university LIKE :args',array(
+        ':args'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    // Flowsheeting project links
+    foreach($rows as $row){
+        $flow .= '<tr><td>'.$fi.'</td><td>';
+        $flow .= '<a href="'.$Fpage.'flow/'.$row->id.'" >'.$row->project_title.'</a><br>';
+        $flow .= '</td></tr>';
+        $fi++;
+    }
+
+    /**********************OpenFOAM****************/
+    db_set_active('OpenFOAM');
+    // Get lab id,title
+    $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $lab .= '<tr><td>'.$li.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" >'.$row->lab_title.'</a>';
+        $lab .= '</td></tr>';
+        $li++;
+    }
+    // Get id,book,author
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<tr><td>'.$ti.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
+        $ti++;
+    }
+    /*************** Or Tools ************/
+    db_set_active('OR-Tools');
+    // Get id,author,book
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+        ':arg'=>'%'.$val.'%'
+    ));
+    $rows = $query->fetchAll();
+    foreach($rows as $row){
+        $text .= '<tr><td>'.$ti.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '</td></tr>';
+        $ti++;
+    }
+
+    /***************************** esim ********************* */
+    db_set_active('eSim');
     // Get esim lab id,title
     $query = db_query('SELECT id,lab_title FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $lab .= '<tr><td>'.$i.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
+        $lab .= '<tr><td>'.$li.'</td><td>';
+        $lab .= '<a href="'.$Fpage.'lab-data/esim/'.$row->id.'" >'.$row->lab_title.'</a>';
         $lab .= '</td></tr>';
-        $i++;
-    }
-    // Get openmodelica lab id,title
-    $query = db_query('SELECT id,lab_title FROM openmodelica.lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $lab .= '<tr><td>'.$i.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/openmodelica/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
-        $lab .= '</td></tr>';
-        $i++;
-    }
-    // Get dwsim_2015 lab id,title
-    $query = db_query('SELECT id,lab_title FROM dwsim_2015.lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $lab .= '<tr><td>'.$i.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
-        $lab .= '</td></tr>';
-        $i++;
-    }
-    // Get cfd_2015 lab id,title
-    $query = db_query('SELECT id,lab_title FROM cfd_2015.lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $lab .= '<tr><td>'.$i.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" target="_blank">'.$row->lab_title.'</a>';
-        $lab .= '</td></tr>';
-        $i++;
-    }
-    $lab .= '</table>';
-    if($i <= 1) $lab = '';
-    /***************************** Text book ********************* */
-    $i = 1;
-    $text .= '<table class="table table-bordered table-hover">';
-    // Get scilab book,author,id
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM scilab.textbook_companion_proposal po left join scilab.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $text .= '<tr><td>'.$i.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
-        $text .= '</td></tr>';
-        $i++;
+        $li++;
     }
     // Get esim book,id,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM esim.textbook_companion_proposal po left join esim.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
-        $text .= '<tr><td>'.$i.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
+        $text .= '<tr><td>'.$ti.'</td><td>';
+        $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
         $text .= '</td></tr>';
-        $i++;
+        $ti++;
     }
-    // Get dwsim_2015 book,id,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM dwsim_2015.textbook_companion_proposal po left join dwsim_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $text .= '<tr><td>'.$i.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
-        $text .= '</td></tr>';
-        $i++;
-    }
-    // Get openmodelica id,book,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM openmodelica.textbook_companion_proposal po left join openmodelica.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $text .= '<tr><td>'.$i.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/openmodelica/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
-        $text .= '</td></tr>';
-        $i++;
-    }
-    // Get cfd_2015 id,book,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM cfd_2015.textbook_companion_proposal po left join cfd_2015.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $text .= '<tr><td>'.$i.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
-        $text .= '</td></tr>';
-        $i++;
-    }
-    // Get or_fossee id,author,book
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM or_fossee.textbook_companion_proposal po left join or_fossee.textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    foreach($rows as $row){
-        $text .= '<tr><td>'.$i.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" target="_blank">'.$row->book.' By '.$row->author.'</a>';
-        $text .= '</td></tr>';
-        $i++;
-    }
-    $text .= '</table>';
-    if($i <= 1) $text = '';
-    /*********************************** CIrcuit Simulation ******************/
-    $i = 1;
-    $ckt = '<table class="table table-bordered table-hover">';
-    $query = db_query('SELECT id,project_title FROM esim.esim_circuit_simulation_proposal WHERE university LIKE :args',array(
+
+
+    $query = db_query('SELECT id,project_title FROM esim_circuit_simulation_proposal WHERE university LIKE :args',array(
         ':args'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
     // circuit simulation links
     foreach($rows as $row){
-        $ckt .= '<tr><td>'.$i.'</td><td>';
-        $ckt .= '<a href="'.$Fpage.'ckt/'.$row->id.'" target="_blank">'.$row->project_title.'</a>';
+        $ckt .= '<tr><td>'.$ci.'</td><td>';
+        $ckt .= '<a href="'.$Fpage.'ckt/'.$row->id.'" >'.$row->project_title.'</a>';
         $ckt .= '</td></tr>';
-        $i++;
+        $ci++;
     }
-    $ckt .= '</table>';
-    if($i <= 1) $ckt = '';
-    /*********************************** Flowsheeting Projects ******************/
-    $i = 1;
-    $flow .= '<table class="table table-bordered table-hover">';
-    $query = db_query('SELECT id,project_title From dwsim_2015.dwsim_flowsheet_proposal WHERE university LIKE :args',array(
-        ':args'=>'%'.$val.'%'
-    ));
-    $rows = $query->fetchAll();
-    // Flowsheeting project links
-    foreach($rows as $row){
-        $flow .= '<tr><td>'.$i.'</td><td>';
-        $flow .= '<a href="'.$Fpage.'flow/'.$row->id.'" target="_blank">'.$row->project_title.'</a><br>';
-        $flow .= '</td></tr>';
-        $i++;
-    }
-    $flow .= '</table>';
-    if($i <= 1) $flow = '';
+    
     /*********************************** Display Data ******************/
     // Check wether state,city,country is empty
     if(IS_EMPTY($state))    $state = "----";
@@ -646,14 +663,13 @@ function fossee_institute_profiles_display($val){
     <li onclick="ChangeTab(3)">Workshop</li>
     <li onclick="ChangeTab(4)">Circuit Simulation</li>
     <li onclick="ChangeTab(5)">Flowsheeting Projects</li>
-    <li onclick="ChangeTab(6)">Case Study Project</li>
-</ul>';
-    $out .= '<div id="thedata-1" style="display:block">'.$lab.'</div>';
-    $out .= '<div id="thedata-2" style="display:none">'.$text.'</div>';
-    $out .= '<div id="thedata-3" style="display:none">'.$work.'</div>';
-    $out .= '<div id="thedata-4" style="display:none">'.$ckt.'</div>';
-    $out .= '<div id="thedata-5" style="display:none">'.$flow.'</div>';
-    $out .= '<div id="thedata-6" style="display:none">'.$caseS.'</div>';
+    <li onclick="ChangeTab(6)">Case Study Project</li></ul>';
+    $out .= '<div id="thedata-1" style="display:block"><table class="table table-bordered table-hover">'.$lab.'</table></div>';
+    $out .= '<div id="thedata-2" style="display:none"><table class="table table-bordered table-hover">'.$text.'</table></div>';
+    $out .= '<div id="thedata-3" style="display:none"><table class="table table-bordered table-hover">'.$work.'</table></div>';
+    $out .= '<div id="thedata-4" style="display:none"><table class="table table-bordered table-hover">'.$ckt.'</table></div>';
+    $out .= '<div id="thedata-5" style="display:none"><table class="table table-bordered table-hover">'.$flow.'</table></div>';
+    $out .= '<div id="thedata-6" style="display:none"><table class="table table-bordered table-hover">'.$caseS.'</table></div>';
     return $out;
 }
 
@@ -678,11 +694,21 @@ function fossee_profiles_form($form,&$formState){
     $form['submit'] = array(
         '#type'=>'submit',
         '#value'=>'Q',
-        '#suffix'=>'</div>',
         '#ajax'=>array('callback'=>'fossee_search')
     );
-    $form['divs']=array('#markup'=>'<div id="cProfile" style="display:none"></div>');
+    $form['reset'] = array(
+        '#type'=>'submit',
+        '#value'=>'Reset',
+        '#suffix'=>'</div>',
+        '#submit'=>array(
+            'fossee_profiles_form_reset'
+        ),
+    );
+    $form['divs'] = array('#markup'=>'<div id="cProfile" style="display:none"></div>');
     return $form;
+}
+function fossee_profiles_form_reset($form,&$formState){
+    $formState['rebuild'] = false;
 }
 // Search callback
 function fossee_search($form,&$formState){

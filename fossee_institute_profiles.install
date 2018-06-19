@@ -36,8 +36,5 @@ function fossee_institute_profiles_install(){
     db_query('use fossee_new');
     if(!db_table_exists('clg_names')){
         db_create_table('clg_names',$schema);
-        InsertData();
-    }else{
-        InsertData();
     }
 }
