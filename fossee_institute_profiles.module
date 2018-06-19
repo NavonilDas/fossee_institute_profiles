@@ -684,10 +684,9 @@ function fossee_profiles_form($form,&$formState){
     $form['divs']=array('#markup'=>'<div id="cProfile" style="display:none"></div>');
     return $form;
 }
-
 // Search callback
 function fossee_search($form,&$formState){
-    if(($formState['values']['clg'] != '') && strlen($formState['values']['clg']) > 3){
+    if(($formState['values']['clg'] != '') && strlen(str_replace(" ","",$formState['values']['clg'])) > 3){
         // Display data    
         $commands[] = ajax_command_invoke(NULL, 'DisplayData', array(fossee_institute_profiles_display($formState['values']['clg'])));
         return array('#type' => "ajax", '#commands' => $commands);

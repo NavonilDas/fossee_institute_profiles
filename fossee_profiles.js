@@ -3,7 +3,7 @@
         $.fn.DIsplayNone = function(){
             var el = document.getElementById('cProfile');
             el.style.display = "block";
-            el.innerHTML = "<b>No Data Found Try to add More Words!</b>";
+            el.innerHTML = "<b>No Unique Data found or No Data found.<br>Try to add More Words.</b>";
         }
         $.fn.DisplayData = function(data){
                 var el = document.getElementById('cProfile');
@@ -38,6 +38,12 @@ function ChangeTab(id){
 
 function Search(e,h){
     if(e.keyCode == 13){
-        window.location = "?c="+h.value.replace(" ","%20");
+        if(h.value.replace(" ",'').length > 3)
+            window.location = "?c="+h.value.replace(" ","%20");
+        else{
+            var el = document.getElementById('cProfile');
+            el.style.display = "block";
+            el.innerHTML = "<b>No Unique Data found or No Data found.<br>Try to add More Words.</b>";
+        }
     }
 }
