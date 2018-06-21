@@ -160,8 +160,12 @@ function fossee_profiles_all_clg(){
     // Display the Prev Button if it is not the first page
     if($s > 0)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s).'">&lt;</a>';
+    
+    $diff = $last - $s - 7;
+    if($diff > 0) $Si = 1;
+    else $Si = $diff + 1;
     // Display Next Five links 
-    for($j=1;$j<=5;$j++){
+    for($j=$Si;$j<5+$Si;$j++){
         if($s+$j+1 <= $last)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+$j+1).'">'.($s+$j+1).'</a>';
     }
@@ -292,7 +296,7 @@ function fossee_get_textbook($id = 0,$type = ''){
     else if($type == 'or') $db = 'OR-Tools';
     else $db = $ltype;
     db_set_active($db);
-    $qstr = 'SELECT * FROM textbook_companion_proposal po LEFT JOIN textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
+    $qstr = 'SELECT * FROM textbook_companion_proposal po LEFT JOIN textbook_companion_preference pe on po.id = pe.proposal_id WHERE po.id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url());
@@ -522,7 +526,7 @@ function fossee_institute_profiles_display($val){
         $lab .= '</td></tr>';
     }
     // Get book,author,id
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
@@ -546,7 +550,7 @@ function fossee_institute_profiles_display($val){
         $li++;
     }
         // Get id,book,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
@@ -571,7 +575,7 @@ function fossee_institute_profiles_display($val){
         $li++;
     }
         // Get book,id,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
@@ -608,7 +612,7 @@ function fossee_institute_profiles_display($val){
         $li++;
     }
     // Get id,book,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
@@ -621,7 +625,7 @@ function fossee_institute_profiles_display($val){
     /*************** Or Tools ************/
     db_set_active('OR-Tools');
     // Get id,author,book
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
@@ -635,7 +639,7 @@ function fossee_institute_profiles_display($val){
     /***************************** esim ********************* */
     db_set_active('eSim');
     // Get esim lab id,title
-    $query = db_query('SELECT id,lab_title FROM esim.lab_migration_proposal WHERE university LIKE :arg',array(
+    $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
@@ -646,7 +650,7 @@ function fossee_institute_profiles_display($val){
         $li++;
     }
     // Get esim book,id,author
-    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();

@@ -15,7 +15,7 @@ nre = ['.',' engineering',' group',' college',
 ' university',' institute',' eng',' management',' national',' chemical',
 ' science',' of',' tech',' and',' &']
 
-tospace = [',']
+# tospace = [',']
 
 conn = pymysql.connect(
     host="localhost",user="root",password="",db=db_name
@@ -33,7 +33,7 @@ for data in datas:
     x = data[0].lower()
     for i in range(0,18):
         x = x.replace(str(nre[i]),'')
-    tmp['name'] = x.replace(',',' , ').replace('-',' ').split()
+    tmp['name'] = x.replace(',',' , ').replace('(',' ( ').replace('-',' ').split()
     tmp['city'] = data[1]
     tmp['state'] = data[2]
     tmp['orig'] = data[0]
@@ -45,7 +45,7 @@ for i in range(0,l-1):
     for j in range(i+1,l):
         match = 0
         for val in clgdic[i]['name']:
-            if((val.replace(" ","") in " ".join(clgdic[j]['name'])) and val != ','): match += 1
+            if((val.replace(" ","") in " ".join(clgdic[j]['name'])) and val != ',' and val != '('): match += 1
         if(match >= 1):
             if(len(clgdic[j]['orig']) > len(clgdic[i]['orig'])):
                 if(clgdic[i]['orig'] not in selected):
