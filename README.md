@@ -1,6 +1,9 @@
 # fossee_institute_profiles Module
 This is a Drupal module used to display the profiles of institutes ie. Displays "Lab Migradtion","Textbook Companion","Workshop","Circuit Simulation","Flowsheeting Projects" etc.
 
+## After installing the Module
+Import the insertdata.sql to add data to the clg_names table
+
 ## The Script
 ### Installation of Script
 install the pymysql library for the script
