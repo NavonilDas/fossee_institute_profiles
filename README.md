@@ -12,8 +12,10 @@ the script generates del.sql in the script folder import it to the mysql.
 All the same name will be deleted.
 
 ## Paths
-<DrupalPath>/cProfiles
+&lt;DrupalPath&lt;/cProfiles
 This Paths is the main page of the module.
+&lt;DrupalPath&lt;/cProfiles/all
+this path displays all the college name present in the database
 
 ## Screenshots
 
