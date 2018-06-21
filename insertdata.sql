@@ -1,10 +1,3 @@
-CREATE TABLE clg_names{
-    name varchar(200) UNIQUE,
-    city char(50),
-    state char(50),
-    country char(50)
-}
-
 INSERT INTO fossee_new.clg_names SELECT l.university,l.city,l.state,l.country FROM scilab.lab_migration_proposal l WHERE l.university NOT IN (SELECT c.name FROM fossee_new.clg_names c) GROUP BY l.university;
 
 INSERT INTO fossee_new.clg_names SELECT l.university,l.city,l.state,l.country FROM esim.lab_migration_proposal l WHERE l.university NOT IN (SELECT c.name FROM fossee_new.clg_names c) GROUP BY l.university;

@@ -169,7 +169,7 @@ function fossee_profiles_all_clg(){
     if($s < $last-1)
         $out .= '<a href="'.$Fpage.'cProfiles/all?page='.($s+2).'">&gt;</a>';
     //Display the last Page
-    $out .= '<a href="'.$Fpage.'cProfiles/all?page=32">Last</a></div>';
+    $out .= '<a href="'.$Fpage.'cProfiles/all?page='.$last.'">Last</a></div>';
     return $out;
 }
 
@@ -279,18 +279,26 @@ function fossee_clg_autocomplete($str){
 // Page Callback for textbook data
 function fossee_get_textbook($id = 0,$type = ''){
     $out = 'No Data Found';
-    $qstr = 'SELECT * FROM '.$type.'.textbook_companion_proposal po LEFT JOIN '.$type.'.textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
+
+    if($type == 'scilab') $ltype = 'Scilab';
+    else if($type == 'esim') $ltype = 'eSim';
+    else if($type == 'dwsim') $ltype = 'DWSIM';
+    else if($type == 'openmodelica') $ltype = 'Open Modelica';
+    else if($type == 'openfoam') $ltype = 'OpenFOAM';
+    else $ltype = 'Others';
+
+    $db = '';
+    if($type == 'openmodelica') $db = 'OpenModelica';
+    else if($type == 'or') $db = 'OR-Tools';
+    else $db = $ltype;
+    db_set_active($db);
+    $qstr = 'SELECT * FROM textbook_companion_proposal po LEFT JOIN textbook_companion_preference pe on po.id = pe.id WHERE pe.id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url());
     if(count($rows) > 0){
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-        if($type == 'scilab') $ltype = 'Scilab';
-        else if($type == 'esim') $ltype = 'eSim';
-        else if($type == 'dwsim_2015') $ltype = 'DWSIM';
-        else if($type == 'openmodelica') $ltype = 'Open Modelica';
-        else if($type == 'cfd_2015') $ltype = 'OpenFOAM';
-        else $ltype = 'Others';
+
         
         // Display data
         $out = '<div id="text-data"><label>About The Book</label><br>';
@@ -318,18 +326,42 @@ function fossee_get_textbook($id = 0,$type = ''){
             $out .= '<b>University : </b>'.$rows[0]->university.'<br></div>';
     }
     // Display the main Website link
-    if($type == 'scilab')
-        $out .= '<a href="http://scilab.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
-    if($type == 'esim')
-        $out .= '<a href="http://esim.fossee.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+    if($rows[0]->approval_status == 1){
+        if($type == 'scilab')
+            $out .= '<a href="http://scilab.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        if($type == 'esim')
+            $out .= '<a href="http://esim.fossee.in/textbook_run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        if($ltype === 'Open Modelica')
+            $out .= '<a href="https://om.fossee.in/textbook-companion/textbook-run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        if($ltype === 'DWSIM')
+            $out .= '<a href="https://dwsim.fossee.in/textbook-companion/textbook-run/'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+        if($ltype === 'OpenFOAM')
+            $out .= '<a href="https://cfd.fossee.in/textbook-companion/textbook-run'.$rows[0]->id.'" target="_blank" id="rButton">Main Website</a>';
+    }
     $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';    
     return $out;
 }
 
 // Page callback to get lab data
 function fossee_get_data($id = 0,$type = ''){
+    // dpm(_drupal_session_read(
+    //     'uknown'
+    // ));
+    if($type == 'scilab') $ltype = 'Scilab';
+    else if($type == 'esim') $ltype = 'eSim';
+    else if($type == 'dwsim') $ltype = 'DWSIM';
+    else if($type == 'openmodelica') $ltype = 'Open Modelica';
+    else if($type == 'openfoam') $ltype = 'OpenFOAM';
+    else $ltype = 'Others';
+
+    $db = '';
+    if($type == 'openmodelica') $db = 'OpenModelica';
+    else if($type == 'or') $db = 'OR-Tools';
+    else $db = $ltype;
+    db_set_active($db);
+
     $out = ''; // Output HTML
-    $qstr = 'SELECT * FROM '.$type.'.lab_migration_proposal WHERE id = '.$id;
+    $qstr = 'SELECT * FROM lab_migration_proposal WHERE id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     $rl = count($rows);
@@ -337,12 +369,6 @@ function fossee_get_data($id = 0,$type = ''){
     if($rl > 0){
         // Add Css
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-        if($type == 'scilab') $ltype = 'Scilab';
-        else if($type == 'esim') $ltype = 'eSim';
-        else if($type == 'dwsim_2015') $ltype = 'DWSIM';
-        else if($type == 'openmodelica') $ltype = 'Open Modelica';
-        else if($type == 'cfd_2015') $ltype = 'OpenFOAM';
-        else $ltype = 'Others';
         // Display Data in Table format
         $out = '<table class="table table-bordered table-hover">';
         if(!IS_EMPTY($rows[0]->lab_title))
@@ -377,10 +403,12 @@ function fossee_get_data($id = 0,$type = ''){
         }
         $out .= '</table>';
         if($rows[0]->approval_status == 3){
-            if($type == 'scilab')
+            if($ltype === 'Scilab')
                 $out .= '<a href="http://scilab.in/lab_migration_run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
-            if($type == 'esim')
-                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';                
+            if($ltype === 'eSim')
+                $out .= '<a href="http://esim.fossee.in/lab_migration_run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+            if($ltype === 'OpenFOAM')
+                $out .= '<a href="https://cfd.fossee.in/lab-migration/lab-migration-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
         }
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
     }
@@ -500,7 +528,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<tr><td>'.$ti.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/scilab/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '<a href="'.$Fpage.'textbook/scilab/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
         $text .= '</td></tr>';
         $ti++;
     }
@@ -538,7 +566,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<tr><td>'.$li.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/dwsim_2015/'.$row->id.'" >'.$row->lab_title.'</a>';
+        $lab .= '<a href="'.$Fpage.'lab-data/dwsim/'.$row->id.'" >'.$row->lab_title.'</a>';
         $lab .= '</td></tr>';
         $li++;
     }
@@ -549,7 +577,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<tr><td>'.$ti.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/dwsim_2015/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '<a href="'.$Fpage.'textbook/dwsim/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
         $text .= '</td></tr>';
         $ti++;
     }
@@ -575,7 +603,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $lab .= '<tr><td>'.$li.'</td><td>';
-        $lab .= '<a href="'.$Fpage.'lab-data/cfd_2015/'.$row->id.'" >'.$row->lab_title.'</a>';
+        $lab .= '<a href="'.$Fpage.'lab-data/openfoam/'.$row->id.'" >'.$row->lab_title.'</a>';
         $lab .= '</td></tr>';
         $li++;
     }
@@ -586,7 +614,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<tr><td>'.$ti.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/cfd_2015/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '<a href="'.$Fpage.'textbook/openfoam/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
         $text .= '</td></tr>';
         $ti++;
     }
@@ -599,7 +627,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<tr><td>'.$ti.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/or_fossee/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '<a href="'.$Fpage.'textbook/or/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
         $text .= '</td></tr>';
         $ti++;
     }
@@ -624,7 +652,7 @@ function fossee_institute_profiles_display($val){
     $rows = $query->fetchAll();
     foreach($rows as $row){
         $text .= '<tr><td>'.$ti.'</td><td>';
-        $text .= '<a href="'.$Fpage.'/textbook/esim/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
+        $text .= '<a href="'.$Fpage.'textbook/esim/'.$row->id.'" >'.$row->book.' By '.$row->author.'</a>';
         $text .= '</td></tr>';
         $ti++;
     }
@@ -718,6 +746,8 @@ function fossee_profiles_form_reset($form,&$formState){
 }
 // Search callback
 function fossee_search($form,&$formState){
+    // drupal_session_start();
+    // _drupal_session_write('clg', str_replace(" ","%20",$formState['values']['clg']));
     if(($formState['values']['clg'] != '') && strlen(str_replace(" ","",$formState['values']['clg'])) > 3){
         // Display data    
         $commands[] = ajax_command_invoke(NULL, 'DisplayData', array(fossee_institute_profiles_display($formState['values']['clg'])));
