@@ -8,6 +8,7 @@ table_name = 'clg_names'
 file = open("del.sql",'w') #open the sql file
 file.write('use '+db_name)
 file.write('\n')
+
 #words to be removed
 nre = ['.',' engineering',' group',' college',
 ' technology',' institution','dr',
