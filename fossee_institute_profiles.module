@@ -296,7 +296,10 @@ function fossee_get_textbook($id = 0,$type = ''){
     else if($type == 'or') $db = 'OR-Tools';
     else $db = $ltype;
     db_set_active($db);
-    $qstr = 'SELECT * FROM textbook_companion_proposal po LEFT JOIN textbook_companion_preference pe on po.id = pe.proposal_id WHERE po.id = '.$id;
+    if($ltype != 'Scilab')
+        $qstr = 'SELECT * FROM textbook_companion_proposal po LEFT JOIN textbook_companion_preference pe on po.id = pe.proposal_id WHERE po.id = '.$id;
+    else
+        $qstr = 'SELECT * FROM textbook_companion_proposal po LEFT JOIN textbook_companion_preference pe on po.id = pe.proposal_id WHERE pe.id = '.$id;
     $query = db_query($qstr);
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url());
@@ -526,7 +529,7 @@ function fossee_institute_profiles_display($val){
         $lab .= '</td></tr>';
     }
     // Get book,author,id
-    $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
+    $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
         ':arg'=>'%'.$val.'%'
     ));
     $rows = $query->fetchAll();
