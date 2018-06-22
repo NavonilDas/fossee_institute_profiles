@@ -20,6 +20,9 @@ This Paths is the main page of the module.
 &lt;DrupalPath&lt;/cProfiles/all
 this path displays all the college name present in the database
 
+## Improve Autocomplete Suggestion
+To improve autocomplete suggestion import insertdata.sql and then execute the script to remove duplicate.
+
 ## Screenshots
 
 ### Front Page
