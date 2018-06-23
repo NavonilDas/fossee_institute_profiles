@@ -247,24 +247,24 @@ function fossee_profiles_ckt($id = 0){
     return $out;
 }
 /*
-        // Admin Page callback
-        function fossee_profile_admin($form,&$formState) {
-            $form['desp'] = array('#markup'=>'<h1>Increase The Autocomplete Suggestion</h1>');
-            $form['update_autocomplete'] = array(
-            '#type' => 'submit',
-            '#title' => t('Click on The Button to Start Process'),
-            '#value'=>'Start',
-            '#submit'=>array(
-                'fossee_profile_update_autocomplete'
-            )
-            );
-            return system_settings_form($form);
-        }
+// Admin Page callback
+function fossee_profile_admin($form,&$formState) {
+    $form['desp'] = array('#markup'=>'<h1>Increase The Autocomplete Suggestion</h1>');
+    $form['update_autocomplete'] = array(
+      '#type' => 'submit',
+      '#title' => t('Click on The Button to Start Process'),
+      '#value'=>'Start',
+      '#submit'=>array(
+          'fossee_profile_update_autocomplete'
+      )
+    );
+    return system_settings_form($form);
+}
 
-        // Function Updates the database
-        function fossee_profile_update_autocomplete(){
-            InsertData();
-            drupal_set_message('Done');
+// Function Updates the database
+function fossee_profile_update_autocomplete(){
+    InsertData();
+    drupal_set_message('Done');
 }
 */
 // Function returns json of autocomplete data

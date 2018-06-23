@@ -15,7 +15,7 @@ nre = ['.',' engineering',' group',' college',
 ' university',' institute',' eng',' management',' national',' chemical',
 ' science',' of',' tech',' and',' &']
 
-# tospace = [',']
+tospace = [',','-','(',')']
 
 conn = pymysql.connect(
     host="localhost",user="root",password="",db=db_name
@@ -33,9 +33,11 @@ for data in datas:
     x = data[0].lower()
     for i in range(0,18):
         x = x.replace(str(nre[i]),'')
-    tmp['name'] = x.replace(',',' , ').replace('(',' ( ').replace('-',' ').split()
-    tmp['city'] = data[1]
-    tmp['state'] = data[2]
+    for space in tospace:
+        x = x.replace(space,' ')
+    tmp['name'] = x.replace('   ',' ').replace("  ",' ').split()
+    tmp['city'] = data[1].lower()
+    tmp['state'] = data[2].lower()
     tmp['orig'] = data[0]
     if(len(data[0].replace(" ","")) > 5):
         clgdic.append(tmp)
@@ -45,8 +47,8 @@ for i in range(0,l-1):
     for j in range(i+1,l):
         match = 0
         for val in clgdic[i]['name']:
-            if((val.replace(" ","") in " ".join(clgdic[j]['name'])) and val != ',' and val != '('): match += 1
-        if(match >= 1):
+            if((val.replace(" ","") in " ".join(clgdic[j]['name']))): match += 1
+        if(match >= 1 and (clgdic[i]['city'] != clgdic[j]['city']  or clgdic[i]['state'] != clgdic[j]['state'])):
             if(len(clgdic[j]['orig']) > len(clgdic[i]['orig'])):
                 if(clgdic[i]['orig'] not in selected):
                     que = 'DELETE FROM '+table_name+' WHERE name = \"'+clgdic[i]['orig']+'\";'
