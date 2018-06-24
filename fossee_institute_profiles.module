@@ -20,14 +20,6 @@ function fossee_institute_profiles_permission(){
             'title'=>t('Use Autocomplete'),
             'description'=>t("Allow User to Use auto complete")
         ),
-        'access selfworkshop data'=>array(
-            'title'=>t('View Self Workshop Data'),
-            'description'=>t('Allow User to View Self Workshop Data')
-        ),
-        'administer onthisdate settings' => array(
-           'title'=>t('Admin'),
-           'description'=>t('Admin') 
-        ),
         'access circuit data'=>array(
             'title'=>t('View Circuit Simulation'),
             'description'=>t('Access Circuit Simulation Data')
@@ -36,10 +28,10 @@ function fossee_institute_profiles_permission(){
             'title'=>t('View Flowsheeting data'),
             'description'=>t('Access Flowsheeting data')
         ),
-        'autocomplete settings'=>array(
-            'title'=>array('Autocomplete Settings'),
-            'description'=>array('Access Autocomplete Settings')
-        )
+        // 'autocomplete settings'=>array(
+        //     'title'=>array('Autocomplete Settings'),
+        //     'description'=>array('Access Autocomplete Settings')
+        // )
     );
 }
 // Implementation of hook_menu()
