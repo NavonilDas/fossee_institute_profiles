@@ -2,7 +2,9 @@
 This is a Drupal module used to display the profiles of institutes ie. Displays "Lab Migradtion","Textbook Companion","Workshop","Circuit Simulation","Flowsheeting Projects" etc.
 
 ## After installing the Module
-Import the insertdata.sql to add data to the clg_names table
+Execute the script/insertdata.py file to generate a sql file to insert data chage the database name in the script if needed.
+
+After executing the file it generate insertdata.sql import it in mysql.
 
 ## The Script
 ### Installation of Script
@@ -35,6 +37,9 @@ Displays All The College. Path <DrupalPath>/cProfiles/all
 ### Search Page
 Display the Details of college in their respective tabs.
 ![Search Page](screenshot/search.png)
+
+### Search Page Showing Suggestion
+![Suggestion](screenshot/suggestion.png)
 
 ### Lab Migration
 Display The Lab Migration details With their main Website
