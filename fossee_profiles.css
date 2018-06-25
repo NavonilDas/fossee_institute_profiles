@@ -108,7 +108,7 @@ input[elem-style="SearchButton"],input[elem-style="ResetButton"]{
 input[elem-style="SearchButton"]:hover,input[elem-style="ResetButton"]:hover{
     background: orange !important;
 }
-@media only screen and (max-width: 1060px) {
+@media only screen and (max-width: 800px) {
     #thetabs li{
         display: block;
     }
