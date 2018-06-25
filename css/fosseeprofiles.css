@@ -20,7 +20,7 @@
     margin: auto;
     width:100%;
 }
-#VIewBox label{
+#VIewBox i{
     font-size: 2em;
     position: absolute;
     right: 50px;
@@ -35,6 +35,7 @@
     float: right;
     margin-right: 10px;
     padding:5px;
+    margin-top: 10px;
 }
 #rButton:hover{
     background: rgba(255, 69, 0, 0.8);
@@ -45,6 +46,7 @@
     color: #fff;
     font-size: 1.5em;
     float: left;
+    margin-top: 10px;
     margin-right: 10px;
     padding:5px;
 }
@@ -52,7 +54,7 @@
     background: rgba(255, 69, 0, 0.8);
 }
 
-#text-data label{
+#text-data i{
     font-size: 1.5em;
     margin-bottom: 10px;
     margin-top: 10px;
@@ -101,10 +103,31 @@ input[elem-style="SearchButton"],input[elem-style="ResetButton"]{
     background: orangered !important;
     background-image: none !important;
     border:none !important;
+    border-radius: 4px;
     color: #fff !important;
     font-size: 1.2em;
+    height: 2em;
     text-shadow: none !important;
+    margin-top: 0.8em;
+}
+input[elem-style="SearchButton"]{
+    grid-area:sbutton;
+}
+input[elem-style="ResetButton"]{
+    grid-area:rbutton;
 }
 input[elem-style="SearchButton"]:hover,input[elem-style="ResetButton"]:hover{
     background: orange !important;
+}
+input[elem-style="SearchBox"]{
+    /* line-height: 2em; */
+    margin:0 !important;
+    grid-area: sBox;
+    width: 100%;
+}
+.container-inline{
+    display: grid;
+    grid-template-columns: 70% 15% 15%;
+    grid-template-areas: "sBox sbutton rbutton";
+    column-gap: 8px;
 }

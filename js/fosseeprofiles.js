@@ -15,7 +15,7 @@
 function viewImage(e){
     var el = document.getElementById('VIewBox');
     el.style.display = "flex";
-    el.innerHTML = '<img src="'+e.src+'"/><label>X</label>';
+    el.innerHTML = '<img src="'+e.src+'"/><i>X</i>';
     el.onclick = ()=>{
         document.getElementById('VIewBox').style.display = "none";
     }
@@ -36,7 +36,7 @@ function ChangeTab(id){
 
 }
 
-function Search(e,h){
+function Search(e,h,base){
     if(e.keyCode == 13){
         if(h.value.replace(" ",'').length > 3)
             window.location = "?c="+h.value.replace(" ","%20");
@@ -46,4 +46,27 @@ function Search(e,h){
             el.innerHTML = "<b>No Unique Data found or No Data found.<br>Try to add More Words.</b>";
         }
     }
+    if(h.value.length > 3){
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+                var json = JSON.parse(xhr.responseText);
+                var tmp = "";
+                var  el = document.getElementById('suggestion');
+                el.innerHTML = "";
+                for(var i=0;i<json.length;i++){
+                    tmp +=`<option value="${json[i]}"></option>`;
+                }
+                el.innerHTML = tmp;
+            }
+        };
+        xhr.open("get", base+"/clg/autocomplete/"+h.value, true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.send();
+    }
+}
+
+function ClearSearch(){
+    document.querySelectorAll('[elem-style="SearchBox"]')[0].value = "";
+    document.getElementById('suggestion').innerHTML = "";
 }

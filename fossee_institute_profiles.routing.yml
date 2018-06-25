@@ -1,0 +1,62 @@
+fossee_institute_profiles.cprofiles:
+  path: '/cprofiles'
+  defaults:
+    _form: '\Drupal\fossee_institute_profiles\Form\MainForm'
+    _title: 'College Profile'
+  requirements:
+    _permission: 'access content'
+
+fossee_institute_profiles.autocomplete:
+  path: '/clg/autocomplete/{str}'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\AutoComplete::suggestion'
+  requirements:
+    _permission: 'use autocomplete'
+
+fossee_institute_profiles.allclg:
+  path: '/cprofiles/all'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\MainController::getAllClg'
+    _title: 'All Colleges'
+  requirements:
+    _permission: 'access content'
+
+fossee_institute_profiles.flowsheeting:
+  path: '/flow/{id}'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\MainController::getFlowsheeting'
+    _title: 'Flowsheeting Project'
+  requirements:
+    _permission: 'access flowsheeting data'
+
+fossee_institute_profiles.workshop:
+  path: '/workshop/view/{wid}'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\MainController::getWorkshop'
+    _title: 'Workshop'
+  requirements:
+    _permission: 'view_workshop'
+
+fossee_institute_profiles.labdata:
+  path: '/lab-data/{type}/{id}'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\MainController::getLabData'
+    _title: 'Lab Migration Details'
+  requirements:
+    _permission: 'access lab data'
+
+fossee_institute_profiles.textbook:
+  path: '/textbook/{type}/{id}'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\MainController::getTextbook'
+    _title: 'Textbook Companion'
+  requirements:
+    _permission: 'access textbook data"'
+
+fossee_institute_profiles.ckt:
+  path: '/ckt/{id}'
+  defaults:
+    _controller: 'Drupal\fossee_institute_profiles\Controller\MainController::getCkt'
+    _title: 'Circuit Simulation'
+  requirements:
+    _permission: 'access circuit data'

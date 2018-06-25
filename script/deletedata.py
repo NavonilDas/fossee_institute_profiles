@@ -1,5 +1,4 @@
 import pymysql
-import re
 
 # Required Variables
 db_name = 'fossee_new' # Default database

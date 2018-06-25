@@ -1,6 +1,0 @@
-name="College Profiles"
-description="College Profiles"
-core=7.x
-
-
-scripts[] = fossee_profiles.js

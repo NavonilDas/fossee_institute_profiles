@@ -1,0 +1,11 @@
+thedata:
+  version: 1.x
+  css:
+    layout:
+      css/fosseeprofiles.css: {}
+      css/bootstrap.min.css: {}
+  js:
+    js/fosseeprofiles.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

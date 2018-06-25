@@ -1,0 +1,5 @@
+name: 'College Profiles'
+description: 'Module to get details of a college'
+core: 8.x
+type: module
+package: Custom

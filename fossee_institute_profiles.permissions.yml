@@ -1,0 +1,29 @@
+view_workshop:
+  title: 'View Workshop'
+  description: 'Allows users to view workshop.'
+  restrict access: TRUE
+
+access lab data:
+  title: 'View Lab Migration Data'
+  description: 'Allow users to view lab migration data'
+  restrict access: TRUE
+
+access textbook data:
+  title: 'View College Profile Data'
+  description: 'Allow users to view textbook data'
+  restrict access: TRUE
+
+use autocomplete:
+  title: 'Use Autocomplete'
+  description: 'Allow User to Use auto complete'
+  restrict access: TRUE
+
+access circuit data:
+  title: 'View Circuit Simulation'
+  description: 'Access Circuit Simulation Data'
+  restrict access: TRUE
+
+access flowsheeting data:
+  title: 'View Flowsheeting data'
+  description: 'Access Flowsheeting data'
+  restrict access: TRUE

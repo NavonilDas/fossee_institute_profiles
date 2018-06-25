@@ -1,40 +1,37 @@
 <?php
 
-require_once('inc/insert.inc');
-// Implementation of hook install
-function fossee_institute_profiles_install(){
-    $schema = array(
-        'description'=>'Table contains college Names and address',
-        'fields'=>array(
-            'name'=>array(
-                'type'=>'varchar',
-                'length'=>200,
-                'description'=>'Name of the College'
-            ),
-            'city'=>array(
-                'type'=>'char',
-                'length'=>50,
-                'description'=>'City of College'
-            ),
-            'state'=>array(
-                'type'=>'char',
-                'length'=>50,
-                'description'=>'State of College'
-            ),
-            'country'=>array(
-                'type'=>'char',
-                'length'=>50,
-                'description'=>'Country of College'
-            )
-        ),
-        'unique keys' => array(
-            'name' => array(
-                'name'
-            )
-        )
-    );
-    db_query('use fossee_new');
-    if(!db_table_exists('clg_names')){
-        db_create_table('clg_names',$schema);
-    }
+function fossee_institute_profiles_schema(){
+    // $schema = array();
+    // drupal_set_message("Hook Schema");
+    $schema['clg_names'] = array(
+      'description'=>'Table contains college Names and address',
+      'fields'=>array(
+          'name'=>array(
+              'type'=>'varchar',
+              'length'=>120,
+              'description'=>'Name of the College'
+          ),
+          'city'=>array(
+              'type'=>'char',
+              'length'=>50,
+              'description'=>'City of College'
+          ),
+          'state'=>array(
+              'type'=>'char',
+              'length'=>50,
+              'description'=>'State of College'
+          ),
+          'country'=>array(
+              'type'=>'char',
+              'length'=>50,
+              'description'=>'Country of College'
+          )
+      ),
+      'unique keys' => array(
+          'name' => array(
+              'name'
+          )
+      )
+  );
+    return $schema;
 }
