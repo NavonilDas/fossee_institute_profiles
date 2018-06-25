@@ -1,5 +1,5 @@
 # fossee_institute_profiles Module
-This is a Drupal module used to display the profiles of institutes ie. Displays "Lab Migradtion","Textbook Companion","Workshop","Circuit Simulation","Flowsheeting Projects" etc.
+This is a Drupal 7 module used to display the profiles of institutes ie. Displays "Lab Migradtion","Textbook Companion","Workshop","Circuit Simulation","Flowsheeting Projects" etc.
 
 ## After installing the Module
 Import the insertdata.sql to add data to the clg_names table
@@ -15,9 +15,9 @@ the script generates del.sql in the script folder import it to the mysql.
 All the same name will be deleted.
 
 ## Paths
-&lt;DrupalPath&lt;/cProfiles
+&lt;DrupalPath&gt;/cProfiles
 This Paths is the main page of the module.
-&lt;DrupalPath&lt;/cProfiles/all
+&lt;DrupalPath&gt;/cProfiles/all
 this path displays all the college name present in the database
 
 ## Improve Autocomplete Suggestion
