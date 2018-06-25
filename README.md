@@ -1,5 +1,5 @@
 # fossee_institute_profiles Module
-This is a Drupal module used to display the profiles of institutes ie. Displays "Lab Migradtion","Textbook Companion","Workshop","Circuit Simulation","Flowsheeting Projects" etc.
+This is a Drupal 8 module used to display the profiles of institutes ie. Displays "Lab Migradtion","Textbook Companion","Workshop","Circuit Simulation","Flowsheeting Projects" etc.
 
 ## After installing the Module
 Execute the script/insertdata.py file to generate a sql file to insert data chage the database name in the script if needed.
