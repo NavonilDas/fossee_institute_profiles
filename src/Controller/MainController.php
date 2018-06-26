@@ -75,7 +75,7 @@ class MainController extends ControllerBase {
     //DWSIM
     \Drupal\Core\Database\Database::setActiveConnection('DWSIM');
     $connection = \Drupal\Core\Database\Database::getConnection('DWSIM');
-    $query = $connection->query('SELECT * FROM dwsim_flowsheet_proposal');
+    $query = $connection->query('SELECT * FROM dwsim_flowsheet_proposal WHERE id = :arg',array(":arg"=>$id));
     // dpm($query->fetchAll());
     //$query = $connection->query('SELECT id,approval_status,project_title,name_title,contributor_name,university,reference FROM dwsim_flowsheet_proposal WHERE id='.$id);
     $rows = $query->fetchAll();
@@ -94,7 +94,8 @@ class MainController extends ControllerBase {
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+        if($rows[0]->approval_status == 3)
+            $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
         $render_array['resume_arguments'] = array(
@@ -323,7 +324,7 @@ class MainController extends ControllerBase {
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$id.'"  id="rButton">Main Website</a>';
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
     $render_array['resume_arguments'] = array(

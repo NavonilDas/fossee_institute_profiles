@@ -28,7 +28,7 @@ class MainForm extends FormBase {
     // Search button
     $form['submit'] = array(
         '#type'=>'submit',
-        '#value'=>'Q',
+        '#value'=>'Search',
         '#ajax'=>array(
             'callback'=>'::ajaxSearch'
         ),
