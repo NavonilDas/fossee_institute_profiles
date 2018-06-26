@@ -192,7 +192,8 @@ function fossee_profiles_flow($id = 0){
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+        if($rows[0]->approval_status == 3)
+            $out .= '<a href="https://dwsim.fossee.in/flowsheeting-project/dwsim-flowsheet-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
     return $out;
@@ -233,7 +234,7 @@ function fossee_profiles_ckt($id = 0){
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$rows[0]->id.'"  id="rButton">Main Website</a>';
+        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$id.'"  id="rButton">Main Website</a>';
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
     return $out;
@@ -721,7 +722,7 @@ function fossee_profiles_form($form,&$formState){
     // Search button
     $form['submit'] = array(
         '#type'=>'submit',
-        '#value'=>'Q',
+        '#value'=>'Search',
         '#ajax'=>array('callback'=>'fossee_search'),
         '#attributes'=>array(
             'elem-style'=>'SearchButton'
