@@ -324,7 +324,8 @@ class MainController extends ControllerBase {
             $out .= '<b>Progress : </b>Completed<br>';
         else 
             $out .= '<b>Progress : </b>In Progress<br>';
-        $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$id.'"  id="rButton">Main Website</a>';
+        if($rows[0]->approval_status == 3)
+            $out .= '<a href="https://esim.fossee.in/circuit-simulation-project/esim-circuit-simulation-run/'.$id.'"  id="rButton">Main Website</a>';
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
         }
     $render_array['resume_arguments'] = array(
