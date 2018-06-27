@@ -14,11 +14,10 @@ class MainController extends ControllerBase {
     if(isset($_GET['page'])) $s = (int)$_GET['page'] - 1;
     if($s<0) $s = 0;
 
-    // \Drupal\Core\Database\Database::setActiveConnection('fossee_new');
     $connection = \Drupal::database();
 
     // Get the no of total colleges
-    $query = $connection->query('SELECT count(name) as count FROM fossee_new.clg_names');
+    $query = $connection->query('SELECT count(name) as count FROM clg_names');
     $rows = $query->fetchAll();
     $Fpage = $base_url.'/';
     //$Fpage = drupal_get_normal_path(url()); // Get the front url
@@ -29,7 +28,7 @@ class MainController extends ControllerBase {
     /// Add the css
     // drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
     // Get 25 rows 
-    $query = $connection->query('SELECT name FROM fossee_new.clg_names ORDER BY name ASC LIMIT 25 OFFSET '.($s*25));
+    $query = $connection->query('SELECT name FROM clg_names ORDER BY name ASC LIMIT 25 OFFSET '.($s*25));
     $rows = $query->fetchAll();
     $i = 1;
     $out .= '<table class="table table-bordered table-hover">';
@@ -151,11 +150,10 @@ class MainController extends ControllerBase {
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
 
         // Image viewbox
-        if($rl > 0)$out .= '<div id="VIewBox"></div>';
+        if($rl > 0)$out .= '<div id="ViewContainer"><div id="VIewBox"></div></div>';
     }
     $render_array['resume_arguments'] = array(
-        '#markup' => $out,
-        
+        '#type'=>'inline_template','#template' => $out,
       );
       $render_array['#attached']['library'][] = 'fossee_institute_profiles/thedata';
       return $render_array;

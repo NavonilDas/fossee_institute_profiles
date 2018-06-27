@@ -13,11 +13,11 @@
     });
 })(jQuery);
 function viewImage(e){
-    var el = document.getElementById('VIewBox');
-    el.style.display = "flex";
-    el.innerHTML = '<img src="'+e.src+'"/><i>X</i>';
+    var el = document.getElementById('ViewContainer');
+    el.style = "visibility:visible;opacity:1;";
+    document.getElementById("VIewBox").innerHTML = '<img src="'+e.src+'"/><i></i>';
     el.onclick = ()=>{
-        document.getElementById('VIewBox').style.display = "none";
+        document.getElementById('ViewContainer').style = "opacity: 0;visibility: hidden;";
     }
 }
 

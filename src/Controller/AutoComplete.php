@@ -10,7 +10,7 @@ class AutoComplete extends ControllerBase {
   public function suggestion($str = '') {
     $response = new Response();
     $connection = \Drupal::database();
-    $query = $connection->query('SELECT name FROM fossee_new.clg_names WHERE name LIKE :args LIMIT 10;',array(
+      $query = $connection->query('SELECT name FROM fossee_new.clg_names WHERE name LIKE :args LIMIT 10;',array(
         ':args'=>'%'.$str.'%'
     ));
     $rows = $query->fetchAll();

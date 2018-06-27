@@ -55,7 +55,16 @@ class MainForm extends FormBase {
     $form['#attached']['library'][] = 'fossee_institute_profiles/thedata';
     return $form;
   }
-  public function getFormId() {    return 'main_form';  }
+
+    public function getFormId() {    return 'main_form';  }
+    public function PatternCreate($val = ''){
+        $ret = $val;
+        $ret = str_replace('.','%',$ret);
+        $ret = str_replace(' ','%',$ret);
+        $ret = str_replace(',','%',$ret);
+        $ret = str_replace('(','%',$ret);        
+        return '%'.$ret.'%';
+    }
     function fossee_institute_profiles_display($val){
         global $base_url;
         $lab = '';  // Lab Migration Html
@@ -75,7 +84,7 @@ class MainForm extends FormBase {
         $fi = 1;
         $connection = \Drupal::database();
         // Get City,State,Country of a College
-        $query = $connection->query('SELECT city,state,country FROM fossee_new.clg_names WHERE name = :args',array(
+        $query = $connection->query('SELECT city,state,country FROM clg_names WHERE name = :args',array(
             ':args'=>$val
         ));
         $row = $query->fetchAll();
@@ -88,7 +97,7 @@ class MainForm extends FormBase {
         }
         // Get workshop id,name 
         $query = $connection->query('SELECT w_id,w_name FROM workshop WHERE venue LIKE :args;',array(
-            ':args'=>'%'.$val.'%'
+            ':args'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         $Fpage = $base_url.'/'; // Get the front url
@@ -103,7 +112,7 @@ class MainForm extends FormBase {
         $connection = \Drupal\Core\Database\Database::getConnection('Scilab');
         // Get  Lab title,id
         $query = $connection->query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -114,7 +123,7 @@ class MainForm extends FormBase {
         }
         // Get book,author,id
         $query = $connection->query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -128,7 +137,7 @@ class MainForm extends FormBase {
         $connection = \Drupal\Core\Database\Database::getConnection('OpenModelica');
         // Get openmodelica lab id,title
         $query = $connection->query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -139,7 +148,7 @@ class MainForm extends FormBase {
         }
             // Get id,book,author
         $query = $connection->query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -154,7 +163,7 @@ class MainForm extends FormBase {
         $connection = \Drupal\Core\Database\Database::getConnection('DWSIM');
         // Get lab id,title
         $query = $connection->query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -165,7 +174,7 @@ class MainForm extends FormBase {
         }
             // Get book,id,author
         $query = $connection->query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -176,7 +185,7 @@ class MainForm extends FormBase {
         }
         // Flowsheeting projects
         $query = $connection->query('SELECT id,project_title From dwsim_flowsheet_proposal WHERE university LIKE :args',array(
-            ':args'=>'%'.$val.'%'
+            ':args'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         // Flowsheeting project links
@@ -192,7 +201,7 @@ class MainForm extends FormBase {
         $connection = \Drupal\Core\Database\Database::getConnection('OpenFOAM');
         // Get lab id,title
         $query = $connection->query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -203,7 +212,7 @@ class MainForm extends FormBase {
         }
         // Get id,book,author
         $query = $connection->query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -217,7 +226,7 @@ class MainForm extends FormBase {
         $connection = \Drupal\Core\Database\Database::getConnection('OR-Tools');
         // Get id,author,book
         $query = $connection->query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -232,7 +241,7 @@ class MainForm extends FormBase {
         $connection = \Drupal\Core\Database\Database::getConnection('eSim');
         // Get esim lab id,title
         $query = $connection->query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -243,7 +252,7 @@ class MainForm extends FormBase {
         }
         // Get esim book,id,author
         $query = $connection->query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-            ':arg'=>'%'.$val.'%'
+            ':arg'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         foreach($rows as $row){
@@ -255,7 +264,7 @@ class MainForm extends FormBase {
 
 
         $query = $connection->query('SELECT id,project_title FROM esim_circuit_simulation_proposal WHERE university LIKE :args',array(
-            ':args'=>'%'.$val.'%'
+            ':args'=>$this->PatternCreate($val)
         ));
         $rows = $query->fetchAll();
         // circuit simulation links
