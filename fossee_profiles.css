@@ -4,29 +4,51 @@
     margin:3px;
 }
 
-#VIewBox{
+#ViewContainer{
     background: rgba(0, 0, 0, 0.5);
-    display: none;
     position: fixed;
     top:0;
     left:0;
     width:100vw;
     height: 100vh;
     z-index:100;
+    opacity: 0;
+    visibility: hidden;
+    transition: visibility,opacity 2s ease;
+}
+#VIewBox{
+    display: flex;
+    width: 100%;
+    height:100%;
     overflow: auto;
 }
-
 #VIewBox img{
-    margin: auto;
-    width:100%;
+    margin: auto auto;
+    max-width:85% !important;
+    max-height:90% !important;
 }
-#VIewBox label{
+#VIewBox i{
     font-size: 2em;
     position: absolute;
-    right: 50px;
-    top:50px;
+    right: 65px;
+    top:53px;
     color:red;
+    cursor: pointer;
 }
+#VIewBox i::before, #VIewBox i::after {
+    position: absolute;
+    left: 15px;
+    content: ' ';
+    height: 33px;
+    width: 4px;
+    background-color: #f00;
+  }
+  #VIewBox i::before {
+    transform: rotate(45deg);
+  }
+  #VIewBox i::after {
+    transform: rotate(-45deg);
+  }
 
 #rButton{
     background: orangered;

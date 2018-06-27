@@ -464,7 +464,7 @@ function fossee_institute_profiles_workshop($wid = 0){
         $out .= '<a href="'.$Fpage.'cProfiles"  id="lButton">Back</a>';
 
         // Image viewbox
-        if($rl > 0)$out .= '<div id="VIewBox"></div>';
+        if($rl > 0)$out .= '<div id="ViewContainer"><div id="VIewBox"></div></div>';
     }
     return $out;
 }
@@ -500,7 +500,7 @@ function fossee_institute_profiles_display($val){
     }
     // Get workshop id,name 
     $query = db_query('SELECT w_id,w_name FROM workshop WHERE venue LIKE :args;',array(
-        ':args'=>'%'.$val.'%'
+        ':args'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     $Fpage = drupal_get_normal_path(url()); // Get the front url
@@ -514,7 +514,7 @@ function fossee_institute_profiles_display($val){
     db_set_active('Scilab');
     // Get  Lab title,id
     $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -525,7 +525,7 @@ function fossee_institute_profiles_display($val){
     }
     // Get book,author,id
     $query = db_query('SELECT pe.book as book,pe.author as author,pe.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND pe.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -538,7 +538,7 @@ function fossee_institute_profiles_display($val){
     db_set_active('OpenModelica');
     // Get openmodelica lab id,title
     $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -549,7 +549,7 @@ function fossee_institute_profiles_display($val){
     }
         // Get id,book,author
     $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -563,7 +563,7 @@ function fossee_institute_profiles_display($val){
     db_set_active('DWSIM');
     // Get lab id,title
     $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -574,7 +574,7 @@ function fossee_institute_profiles_display($val){
     }
         // Get book,id,author
     $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -585,7 +585,7 @@ function fossee_institute_profiles_display($val){
     }
     // Flowsheeting projects
     $query = db_query('SELECT id,project_title From dwsim_flowsheet_proposal WHERE university LIKE :args',array(
-        ':args'=>'%'.$val.'%'
+        ':args'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     // Flowsheeting project links
@@ -600,7 +600,7 @@ function fossee_institute_profiles_display($val){
     db_set_active('OpenFOAM');
     // Get lab id,title
     $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -611,7 +611,7 @@ function fossee_institute_profiles_display($val){
     }
     // Get id,book,author
     $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -624,7 +624,7 @@ function fossee_institute_profiles_display($val){
     db_set_active('OR-Tools');
     // Get id,author,book
     $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -638,7 +638,7 @@ function fossee_institute_profiles_display($val){
     db_set_active('eSim');
     // Get esim lab id,title
     $query = db_query('SELECT id,lab_title FROM lab_migration_proposal WHERE university LIKE :arg',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -649,7 +649,7 @@ function fossee_institute_profiles_display($val){
     }
     // Get esim book,id,author
     $query = db_query('SELECT pe.book as book,pe.author as author,po.id as id FROM textbook_companion_proposal po left join textbook_companion_preference pe on po.id = pe.proposal_id WHERE university LIKE :arg AND po.id IS NOT NULL',array(
-        ':arg'=>'%'.$val.'%'
+        ':arg'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     foreach($rows as $row){
@@ -661,7 +661,7 @@ function fossee_institute_profiles_display($val){
 
 
     $query = db_query('SELECT id,project_title FROM esim_circuit_simulation_proposal WHERE university LIKE :args',array(
-        ':args'=>'%'.$val.'%'
+        ':args'=>PatternCreate($val)
     ));
     $rows = $query->fetchAll();
     // circuit simulation links
@@ -758,4 +758,13 @@ function fossee_search($form,&$formState){
         $commands[] = ajax_command_invoke(NULL, 'DIsplayNone',array());
         return array('#type' => "ajax", '#commands' => $commands);
     }
+}
+// Function Replace some charecter that can be different for same college
+function PatternCreate($val = ''){
+    $ret = $val;
+    $ret = str_replace('.','%',$ret);
+    $ret = str_replace(' ','%',$ret);
+    $ret = str_replace(',','%',$ret);
+    $ret = str_replace('(','%',$ret);        
+    return '%'.$ret.'%';
 }
