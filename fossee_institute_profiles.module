@@ -205,6 +205,7 @@ function fossee_profiles_page(){
     drupal_add_js(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.js');
     drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
 
+
     // Get the college name
     if(isset($_GET['c']))
         return fossee_institute_profiles_display($_GET['c']);
@@ -300,7 +301,6 @@ function fossee_get_textbook($id = 0,$type = ''){
     $Fpage = drupal_get_normal_path(url());
     if(count($rows) > 0){
         drupal_add_css(drupal_get_path('module','fossee_institute_profiles').'/fossee_profiles.css');
-
         
         // Display data
         $out = '<div id="text-data"><label>About The Book</label><br>';

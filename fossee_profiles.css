@@ -139,3 +139,24 @@ input[elem-style="SearchButton"]:hover,input[elem-style="ResetButton"]:hover{
         color: gray;
     }
 }
+
+/*  Disable */
+
+#sidebar-first{
+    display: none !important;
+}
+.toolbar-shortcuts{
+    display: none;
+}
+#toolbar-menu{
+    display: none;
+}
+#toolbar-home{
+    display: none;
+}
+#toolbar-user{
+    display: none;
+}
+#edit-shortcuts{
+    display: none;
+}
