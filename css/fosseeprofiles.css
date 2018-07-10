@@ -131,9 +131,11 @@ input[elem-style="SearchButton"],input[elem-style="ResetButton"]{
     margin-top: 0.8em;
 }
 input[elem-style="SearchButton"]{
+    margin: 0 !important;
     grid-area:sbutton;
 }
 input[elem-style="ResetButton"]{
+    margin: 0 !important;
     grid-area:rbutton;
 }
 input[elem-style="SearchButton"]:hover,input[elem-style="ResetButton"]:hover{
@@ -147,7 +149,7 @@ input[elem-style="SearchBox"]{
 }
 .container-inline{
     display: grid;
-    grid-template-columns: 70% 15% 15%;
+    grid-template-columns: auto 90px 90px;
     grid-template-areas: "sBox sbutton rbutton";
     column-gap: 8px;
 }
